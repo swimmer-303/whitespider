@@ -1,1 +1,15 @@
-26274
+# This is an example Python code block that prints the square of a given number.
+
+def square(number):
+    """
+    This function returns the square of a given number.
+
+    :param number: The number to find the square of.
+    :return: The square of the given number.
+    """
+    return number ** 2
+
+if __name__ == "__main__":
+    given_number = 10
+    squared_number = square(given_number)
+    print(f"The square of {given_number} is {squared_number}.")
