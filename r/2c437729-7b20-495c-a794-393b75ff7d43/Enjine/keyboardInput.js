@@ -1,7 +1,7 @@
 /**
-	Class that helps to manage keyboard input.
-	Code by Rob Kleffner, 2011
-*/
+ * Class that helps to manage keyboard input.
+ * Code by Rob Kleffner, 2011
+ */
 
 Enjine.Keys = {
     A: 65,
@@ -29,41 +29,38 @@ Enjine.Keys = {
     W: 87,
     X: 88,
     Y: 89,
-    Z: 80,
-    Left: 37,
-    Up: 38,
-    Right: 39,
-    Down: 40
+    Z: 90,
+    LEFT: 37,
+    UP: 38,
+    RIGHT: 39,
+    DOWN: 40
 };
 
 Enjine.KeyboardInput = {
-    Pressed: new Array(),
-    
-    Initialize: function() {
+    pressed: [],
+
+    initialize: function () {
         var self = this;
-        document.onkeydown = function(event) { self.KeyDownEvent(event); }
-        document.onkeyup = function(event) { self.KeyUpEvent(event); }
-    },
-    
-    IsKeyDown: function(key) {
-        if (this.Pressed[key] != null)
-            return this.Pressed[key];
-        return false;
-    },
-    
-    KeyDownEvent: function(event) {
-        this.Pressed[event.keyCode] = true;
-	this.PreventScrolling(event);
-    },
-    
-    KeyUpEvent: function(event) {
-        this.Pressed[event.keyCode] = false;
-	this.PreventScrolling(event);
+        document.addEventListener('keydown', function (event) { self.keyDownEvent(event); });
+        document.addEventListener('keyup', function (event) { self.keyUpEvent(event); });
     },
 
-    PreventScrolling: function(event) {
-        // 37: left, 38: up, 39: right, 40: down
-        if(event.keyCode >= 37 && event.keyCode <= 40){
+    isKeyDown: function (key) {
+        return this.pressed[key] !== undefined ? this.pressed[key] : false;
+    },
+
+    keyDownEvent: function (event) {
+        this.pressed[event.keyCode] = true;
+        this.preventScrolling(event);
+    },
+
+    keyUpEvent: function (event) {
+        this.pressed[event.keyCode] = false;
+        this.preventScrolling(event);
+    },
+
+    preventScrolling: function (event) {
+        if (event.keyCode >= 37 && event.keyCode <= 40) {
             event.preventDefault();
         }
     }
