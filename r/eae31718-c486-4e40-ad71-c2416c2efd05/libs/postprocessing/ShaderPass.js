@@ -4,6 +4,9 @@
 
 THREE.ShaderPass = function ( shader, textureID ) {
 
+	// Call the parent class constructor
+	THREE.Pass.call( this );
+
 	this.textureID = ( textureID !== undefined ) ? textureID : "tDiffuse";
 
 	this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
@@ -24,28 +27,20 @@ THREE.ShaderPass = function ( shader, textureID ) {
 
 };
 
-THREE.ShaderPass.prototype = {
+// Inherit from THREE.Pass
+THREE.ShaderPass.prototype = Object.create( THREE.Pass.prototype );
+THREE.ShaderPass.prototype.constructor = THREE.ShaderPass;
 
-	render: function ( renderer, writeBuffer, readBuffer, delta ) {
+THREE.ShaderPass.prototype.render = function ( pass, gl, readBuffer ) {
 
-		if ( this.uniforms[ this.textureID ] ) {
+	if ( shader === null || shader === undefined ) {
 
-			this.uniforms[ this.textureID ].texture = readBuffer;
-
-		}
-
-		THREE.EffectComposer.quad.material = this.material;
-
-		if ( this.renderToScreen ) {
-
-			renderer.render( THREE.EffectComposer.scene, THREE.EffectComposer.camera );
-
-		} else {
-
-			renderer.render( THREE.EffectComposer.scene, THREE.EffectComposer.camera, writeBuffer, this.clear );
-
-		}
+		console.error( "ShaderPass: shader is null or undefined" );
+		return;
 
 	}
 
-};
+	if ( this.uniforms === null || this.uniforms === undefined ) {
+
+		console.error( "ShaderPass: this.uniforms is null or undefined" );
+	
