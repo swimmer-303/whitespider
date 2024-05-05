@@ -2,57 +2,55 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.TexturePass = function ( map, opacity ) {
+THREE.TexturePass = function ( map, opacity = 1.0 ) {
+  THREE.Pass.call( this );
 
-	THREE.Pass.call( this );
+  if ( THREE.CopyShader === undefined )
+    console.error( "THREE.TexturePass relies on THREE.CopyShader" );
 
-	if ( THREE.CopyShader === undefined )
-		console.error( "THREE.TexturePass relies on THREE.CopyShader" );
+  this.copyShader = THREE.CopyShader;
 
-	var shader = THREE.CopyShader;
+  if ( map === undefined ) {
+    console.error( "THREE.TexturePass requires a map parameter" );
+    return;
+  }
 
-	this.map = map;
-	this.opacity = ( opacity !== undefined ) ? opacity : 1.0;
+  this.map = map;
+  this.opacity = opacity;
 
-	this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+  this.uniforms = THREE.UniformsUtils.clone( this.copyShader.uniforms );
 
-	this.material = new THREE.ShaderMaterial( {
+  this.material = new THREE.ShaderMaterial( {
+    uniforms: this.uniforms,
+    vertexShader: this.copyShader.vertexShader,
+    fragmentShader: this.copyShader.fragmentShader,
+    depthTest: false,
+    depthWrite: false,
+    transparent: this.opacity < 1.0
+  } );
 
-		uniforms: this.uniforms,
-		vertexShader: shader.vertexShader,
-		fragmentShader: shader.fragmentShader,
-		depthTest: false,
-		depthWrite: false
+  this.needsSwap = false;
 
-	} );
-
-	this.needsSwap = false;
-
-	this.fsQuad = new THREE.Pass.FullScreenQuad( null );
-
+  this.fsQuad = new THREE.Pass.FullScreenQuad( null );
 };
 
-THREE.TexturePass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
+THREE.TexturePass.prototype = Object.create( THREE.Pass.prototype );
+THREE.TexturePass.prototype.constructor = THREE.TexturePass;
 
-	constructor: THREE.TexturePass,
+THREE.TexturePass.prototype.render = function ( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+  const oldAutoClear = renderer.autoClear;
+  renderer.autoClear = false;
 
-	render: function ( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+  this.fsQuad.material = this.material;
 
-		var oldAutoClear = renderer.autoClear;
-		renderer.autoClear = false;
+  this.uniforms[ "opacity" ].value = this.opacity;
+  this.uniforms[ "tDiffuse" ].value = this.map;
 
-		this.fsQuad.material = this.material;
+  renderer.setRenderTarget( this.renderToScreen ? null : readBuffer );
 
-		this.uniforms[ "opacity" ].value = this.opacity;
-		this.uniforms[ "tDiffuse" ].value = this.map;
-		this.material.transparent = ( this.opacity < 1.0 );
+  if ( this.clear ) renderer.clear();
 
-		renderer.setRenderTarget( this.renderToScreen ? null : readBuffer );
-		if ( this.clear ) renderer.clear();
-		this.fsQuad.render( renderer );
+  this.fsQuad.render( renderer );
 
-		renderer.autoClear = oldAutoClear;
-
-	}
-
-} );
+  renderer.autoClear = oldAutoClear;
+};
