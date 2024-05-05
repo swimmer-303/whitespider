@@ -1,40 +1,47 @@
-﻿body
-{
-    min-height: 0px;
+/* Set the minimum height of the body to 0px */
+body {
+  min-height: 0px;
 }
 
-#bg, #vignette-left, #vignette-right, #vignette-bottom, #umbrella
-{
-    display: block;
+/* Display the elements as block-level elements */
+#bg,
+#vignette-left,
+#vignette-right,
+#vignette-bottom,
+#umbrella {
+  display: block;
 }
 
-#upgrade
-{
-    display: block;
-    width: 623px;
-    margin: 40px auto;
-    padding-top: 40px;
+/* Style the #upgrade container */
+#upgrade {
+  display: block;
+  width: 623px;
+  margin: 40px auto;
+  padding-top: 40px;
 }
 
-#upgrade-header
-{
-    background: url(../images/page/upgrade-js.png);
-    width: 439px;
-    height: 444px;
-    margin: 0px auto;
+/* Style the #upgrade-header background image */
+#upgrade-header {
+  background: url(../images/page/upgrade-js.png);
+  width: 439px;
+  height: 444px;
+  margin: 0px auto;
 }
 
+/* Hide the .video, .magasin, #game_top, and #upgrade-button elements */
 .video,
 .magasin,
-#game_top ,
+#game_top,
 #upgrade-button {
-    display: none;
+  display: none;
 }
 
+/* Display the .content_old_ie element */
 .content_old_ie {
-    display: block;
+  display: block;
 }
 
+/* Hide the #lsWarning element */
 #lsWarning {
-    display: none;
+  display: none;
 }
