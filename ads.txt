@@ -1,1 +1,11 @@
-google.com, pub-7505521340110301, DIRECT, f08c47fec0942fa0
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- Your ad placement name -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-7505521340110301"
+     data-ad-slot=" YOUR_AD_SLOT"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
