@@ -1,35 +1,52 @@
+// Variables to store the auto move flag and time
+let autoMoveFlag = false;
+let autoMoveTime;
 
-var auto_move_flag = false;
-var auto_move_time;
-
-function start_auto_move(){
-	auto_move_flag = true;
-	auto_move();
+// Function to start auto move
+function startAutoMove() {
+  autoMoveFlag = true;
+  autoMove();
 }
 
-function auto_move(){
-	if ( auto_move_flag === false )
-		return;
-	var direction = Math.floor( Math.random() * 4 );
-	GM.move( direction );
-	setTimeout( "auto_move()", auto_move_time );
+// Function to auto move
+function autoMove() {
+  if (!autoMoveFlag) return;
+
+  const direction = Math.floor(Math.random() * 4);
+  GM.move(direction);
+  setTimeout(autoMove, autoMoveTime);
 }
 
-function stop_auto_move(){
-	auto_move_flag = false;
+// Function to stop auto move
+function stopAutoMove() {
+  autoMoveFlag = false;
 }
 
-window.requestAnimationFrame(function(){
-	document.getElementById("auto-move-run").addEventListener("click",function(){
-		var time = parseInt( document.getElementById("auto-move-input-time").value );
-		if ( !isNaN( time ) ){
-			auto_move_time = time;
-			if ( auto_move_flag === false ){
-				start_auto_move();
-			}
-		}
-	});
-	document.getElementById("auto-move-stop").addEventListener("click",function(){
-		stop_auto_move();
-	});
+// Function to handle the start/stop buttons
+function handleAutoMoveButtons() {
+  const startButton = document.getElementById("auto-move-run");
+  const stopButton = document.getElementById("auto-move-stop");
+
+  startButton.addEventListener("click", () => {
+    const timeInput = document.getElementById("auto-move-input-time");
+    const time = parseInt(timeInput.value);
+
+    if (isNaN(time)) {
+      alert("Please enter a valid number.");
+      return;
+    }
+
+    autoMoveTime = time;
+
+    if (!autoMoveFlag) {
+      startAutoMove();
+    }
+  });
+
+  stopButton.addEventListener("click", stopAutoMove);
+}
+
+// Request animation frame to add event listeners after the page loads
+window.requestAnimationFrame(() => {
+  handleAutoMoveButtons();
 });
