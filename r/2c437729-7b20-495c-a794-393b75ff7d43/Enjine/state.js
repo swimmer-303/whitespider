@@ -1,45 +1,55 @@
 /**
-	Simple State pattern implementation for game states.
-	Code by Rob Kleffner, 2011
-*/
+ * Simple State pattern implementation for game states.
+ * Code by Rob Kleffner, 2011
+ */
 
-Enjine.GameStateContext = function(defaultState) {
-    this.State = null;
-    
-    if (defaultState != null) {
+const EventEmitter = require('events');
+
+class Enjine {
+  static GameStateContext = class GameStateContext extends EventEmitter {
+    constructor(defaultState) {
+      super();
+      this.State = null;
+
+      if (defaultState != null) {
         this.State = defaultState;
         this.State.Enter();
+      }
     }
-};
 
-Enjine.GameStateContext.prototype = {
-    ChangeState: function(newState) {
-        if (this.State != null) {
-            this.State.Exit();
-        }
-        this.State = newState;
-        this.State.Enter();
-    },
-    
-    Update: function(delta) {
-        this.State.CheckForChange(this);
-        this.State.Update(delta);
-    },
-    
-    Draw: function(delta) {
-        this.State.Draw(delta);
+    ChangeState(newState) {
+      if (this.State != null) {
+        this.State.Exit();
+      }
+      this.State = newState;
+      this.State.Enter();
+
+      // Emit a changeState event
+      this.emit('changeState', this.State);
     }
-};
 
-/**
- * Base game state class to at least ensure that all the functions exist.
- */ 
-Enjine.GameState = function() { }
+    Update(delta) {
+      this.State.CheckForChange(this, delta);
+      this.State.Update(delta);
+    }
 
-Enjine.GameState.prototype = {
-    Enter: function () {},
-    Exit: function() {},
-    Update: function(delta) {},
-    Draw: function(context) {},
-    CheckForChange: function(context) {}
-};
+    Draw(delta) {
+      this.State.Draw(delta);
+    }
+  };
+
+  /**
+   * Base game state class to at least ensure that all the functions exist.
+   */
+  static GameState = class GameState {
+    constructor() {}
+
+    Enter() {}
+    Exit() {}
+    Update(delta) {}
+    Draw(context) {}
+    CheckForChange(context, delta) {}
+  };
+}
+
+module.exports = Enjine;
