@@ -1,1 +1,13 @@
-25606
+def sum_of_numbers(n):
+    """
+    This function returns the sum of all numbers from 1 to n.
+
+    :param n: The upper limit of the sum.
+    :return: The sum of all numbers from 1 to n.
+    """
+    return (n * (n + 1)) // 2
+
+if __name__ == "__main__":
+    num = int(input("Enter a number: "))
+    print("The sum of all numbers from 1 to", num, "is:", sum_of_numbers(num))
+
