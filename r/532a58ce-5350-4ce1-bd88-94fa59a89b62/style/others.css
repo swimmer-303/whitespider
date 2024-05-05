@@ -1,7 +1,10 @@
-.auto-move-container{
-	margin: 60px auto 0px auto;
-	width: 450px;
-	font-size: 20px;
-	color: #0099FF;
+.auto-move-container {
+  /* Center container with margin auto on both left and right */
+  margin: 60px auto 0px auto;
+  /* Set the width of the container */
+  width: 450px;
+  /* Set the font size of the text inside the container */
+  font-size: 20px;
+  /* Set the color of the text inside the container */
+  color: #0099FF;
 }
-
