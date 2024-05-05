@@ -1,73 +1,99 @@
-
-//remember to update history function to show the respective iter speeds
+// Remember to update the history function to show the respective iter speeds
 function update(dt) {
-	MainHex.dt = dt;
-	if (gameState == 1) {
-		waveone.update();
-		if (MainHex.ct - waveone.prevTimeScored > 1000) {
-			waveone.prevTimeScored = MainHex.ct;
-		}
-	}
-	var lowestDeletedIndex = 99;
-	var i;
-	var j;
-	var block;
+  MainHex.dt = dt;
 
-	var objectsToRemove = [];
-	for (i = 0; i < blocks.length; i++) {
-		MainHex.doesBlockCollide(blocks[i]);
-		if (!blocks[i].settled) {
-			if (!blocks[i].initializing) blocks[i].distFromHex -= blocks[i].iter * dt * settings.scale;
-		} else if (!blocks[i].removed) {
-			blocks[i].removed = 1;
-		}
-	}
+  if (gameState !== 1) return;
 
-	for (i = 0; i < MainHex.blocks.length; i++) {
-		for (j = 0; j < MainHex.blocks[i].length; j++) {
-			if (MainHex.blocks[i][j].checked ==1 ) {
-				consolidateBlocks(MainHex,MainHex.blocks[i][j].attachedLane,MainHex.blocks[i][j].getIndex());
-				MainHex.blocks[i][j].checked=0;
-			}
-		}
-	}
+  waveone.update();
+  checkAndUpdateTimeScored(MainHex, waveone, 1000);
 
-	for (i = 0; i < MainHex.blocks.length; i++) {
-		lowestDeletedIndex = 99;
-		for (j = 0; j < MainHex.blocks[i].length; j++) {
-			block = MainHex.blocks[i][j];
-			if (block.deleted == 2) {
-				MainHex.blocks[i].splice(j,1);
-				blockDestroyed();
-				if (j < lowestDeletedIndex) lowestDeletedIndex = j;
-				j--;
-			}
-		}
+  updateBlockDistFromHex(blocks, dt, settings.scale);
+  checkAndConsolidateBlocks(MainHex.blocks);
+  removeDeletedBlocks(MainHex.blocks);
+  updateBlockSettledProperty(MainHex.blocks);
+  checkAndRemoveBlocks(blocks);
 
-		if (lowestDeletedIndex < MainHex.blocks[i].length) {
-			for (j = lowestDeletedIndex; j < MainHex.blocks[i].length; j++) {
-				MainHex.blocks[i][j].settled = 0;
-			}
-		}
-	}
+  MainHex.ct += dt;
+}
 
-	for (i = 0; i < MainHex.blocks.length; i++) {
-		for (j = 0; j < MainHex.blocks[i].length; j++) {
-			block = MainHex.blocks[i][j];
-			MainHex.doesBlockCollide(block, j, MainHex.blocks[i]);
+function checkAndUpdateTimeScored(mainObj, obj, interval) {
+  if (mainObj.ct - obj.prevTimeScored > interval) {
+    obj.prevTimeScored = mainObj.ct;
+  }
+}
 
-			if (!MainHex.blocks[i][j].settled) {
-				MainHex.blocks[i][j].distFromHex -= block.iter * dt * settings.scale;
-			}
-		}
-	}
+function updateBlockDistFromHex(blocks, dt, scale) {
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
 
-	for(i = 0; i < blocks.length;i++){
-		if (blocks[i].removed == 1) {
-			blocks.splice(i,1);
-			i--;
-		}
-	}
+    if (!block.settled) {
+      if (!block.initializing) block.distFromHex -= block.iter * dt * scale;
+    } else if (!block.removed) {
+      block.removed = 1;
+    }
+  }
+}
 
-	MainHex.ct += dt;
+function checkAndConsolidateBlocks(blocks) {
+  for (let i = 0; i < blocks.length; i++) {
+    for (let j = 0; j < blocks[i].length; j++) {
+      const block = blocks[i][j];
+
+      if (block.checked === 1) {
+        consolidateBlocks(MainHex, block.attachedLane, block.getIndex());
+        block.checked = 0;
+      }
+    }
+  }
+}
+
+function removeDeletedBlocks(blocks) {
+  for (let i = 0; i < blocks.length; i++) {
+    let lowestDeletedIndex = 99;
+
+    for (let j = 0; j < blocks[i].length; j++) {
+      const block = blocks[i][j];
+
+      if (block.deleted === 2) {
+        blocks[i].splice(j, 1);
+        blockDestroyed();
+
+        if (j < lowestDeletedIndex) lowestDeletedIndex = j;
+        j--;
+      }
+    }
+
+    if (lowestDeletedIndex < blocks[i].length) {
+      for (let j = lowestDeletedIndex; j < blocks[i].length; j++) {
+        blocks[i][j].settled = 0;
+      }
+    }
+  }
+}
+
+function updateBlockSettledProperty(blocks) {
+  for (let i = 0; i < blocks.length; i++) {
+    for (let j = 0; j < blocks[i].length; j++) {
+      const block = blocks[i][j];
+
+      if (!block.settled) {
+        MainHex.doesBlockCollide(block, j, blocks[i]);
+        block.distFromHex -= block.iter * dt * settings.scale;
+      }
+    }
+  }
+}
+
+function checkAndRemoveBlocks(blocks) {
+  for (let i = 0; i < blocks.length; i++) {
+    for (let j = 0; j < blocks[i].length; j++) {
+      const block = blocks[i][j];
+
+      if (block.removed === 1) {
+        blocks.splice(i, 1);
+        i--;
+        break;
+      }
+    }
+  }
 }
