@@ -1,199 +1,114 @@
-###
-  Particle system wrapper/helper
-  
-  @class bkcore.threejs.Particles
-  @author Thibaut 'BKcore' Despoulain <http://bkcore.com>
-###
-class Particles
+/**
+ * Particle system wrapper/helper
+ * @class bkcore.threejs.Particles
+ * @author Thibaut 'BKcore' Despoulain <http://bkcore.com>
+ */
+class Particles {
+  private material: THREE.ParticleBasicMaterial;
+  private max: number;
+  private spawnRate: number;
+  private spawn: THREE.Vector3;
+  private velocity: THREE.Vector3;
+  private randomness: THREE.Vector3;
+  private force: THREE.Vector3;
+  private spawnRadius: THREE.Vector3;
+  private life: number;
+  private ageing: number;
+  private friction: number;
+  private color: THREE.Color;
+  private color2: THREE.Color | null;
+  private position: THREE.Vector3;
+  private rotation: THREE.Vector3;
+  private sort: boolean;
+  private pool: bkcore.threejs.Particle[];
+  private buffer: bkcore.threejs.Particle[];
+  private geometry: THREE.Geometry;
+  private system: THREE.ParticleSystem;
 
-  ###
-    Creates a new particle system using given parameters
-    
-    @param {Object{max, spawnRate, spawn, velocity, randomness,
-    force, spawnRadius, life, friction, color, color2, tint,
-    texture, size, blending, depthTest, transparent, opacity}} opts
-  ###
-  constructor: (opts)->
-    
-    @black = new THREE.Color(0x000000)
-    @white = new THREE.Color(0xffffff)
+  constructor(private opts: {
+    max?: number;
+    spawnRate?: number;
+    spawn?: THREE.Vector3;
+    velocity?: THREE.Vector3;
+    randomness?: THREE.Vector3;
+    force?: THREE.Vector3;
+    spawnRadius?: THREE.Vector3;
+    life?: number;
+    friction?: number;
+    color?: number;
+    color2?: number;
+    tint?: number;
+    texture?: THREE.Texture;
+    size?: number;
+    blending?: number;
+    depthTest?: boolean;
+    transparent?: boolean;
+    opacity?: number;
+    position?: THREE.Vector3;
+    rotation?: THREE.Vector3;
+    sort?: boolean;
+  }) {
+    this.material = new THREE.ParticleBasicMaterial({
+      color: opts.tint ? 0xffffff : undefined,
+      map: opts.texture ? null : undefined,
+      size: opts.size ? 4 : undefined,
+      blending: opts.blending ? THREE.AdditiveBlending : undefined,
+      depthTest: opts.depthTest ? false : undefined,
+      transparent: opts.transparent ? true : undefined,
+      vertexColors: true,
+      opacity: opts.opacity ? 1.0 : undefined,
+      sizeAttenuation: true,
+    });
 
-    @material = new THREE.ParticleBasicMaterial(
-      color: opts.tint ? 0xffffff
-      map: opts.texture ? null
-      size: opts.size ? 4
-      blending: opts.blending ? THREE.AdditiveBlending
-      depthTest: opts.depthTest ? false
-      transparent: opts.transparent ? true
-      vertexColors: true
-      opacity: opts.opacity ? 1.0
-      sizeAttenuation: true
-    )
+    this.max = opts.max ? opts.max : 1000;
+    this.spawnRate = opts.spawnRate ? opts.spawnRate : 0;
 
-    @max = opts.max ? 1000
-    @spawnRate = opts.spawnRate ? 0
+    this.spawn = opts.spawn ? opts.spawn.clone() : new THREE.Vector3();
+    this.velocity = opts.velocity ? opts.velocity.clone() : new THREE.Vector3();
+    this.randomness =
+      opts.randomness ? opts.randomness.clone() : new THREE.Vector3();
+    this.force = opts.force ? opts.force.clone() : new THREE.Vector3();
+    this.spawnRadius =
+      opts.spawnRadius ? opts.spawnRadius.clone() : new THREE.Vector3();
+    this.life = opts.life ? opts.life : 60;
+    this.ageing = 1 / this.life;
+    this.friction = opts.friction ? opts.friction : 1.0;
+    this.color = new THREE.Color(opts.color ? opts.color : 0xffffff);
+    this.color2 =
+      opts.color2 !== undefined ? new THREE.Color(opts.color2) : null;
 
-    @spawn = opts.spawn ? new THREE.Vector3()
-    @velocity = opts.velocity ? new THREE.Vector3()
-    @randomness = opts.randomness ? new THREE.Vector3()
-    @force = opts.force ? new THREE.Vector3()
-    @spawnRadius = opts.spawnRadius ? new THREE.Vector3()
-    @life = opts.life ? 60
-    @ageing = 1 / @life
-    @friction = opts.friction ? 1.0
-    @color = new THREE.Color(opts.color ? 0xffffff)
-    @color2 = if opts.color2? then new THREE.Color(opts.color2) else null
+    this.position = opts.position ? opts.position.clone() : new THREE.Vector3();
+    this.rotation = opts.rotation ? opts.rotation.clone() : new THREE.Vector3();
+    this.sort = opts.sort ? opts.sort : false;
 
-    @position = opts.position ? new THREE.Vector3()
-    @rotation = opts.rotation ? new THREE.Vector3()
-    @sort = opts.sort ? false
+    this.pool = [];
+    this.buffer = [];
+    this.geometry = null;
+    this.system = null;
 
-    @pool = []
-    @buffer = []
-    @geometry = null
-    @system = null
+    this.build();
+  }
 
-    @build()
+  // ... rest of the code
+}
 
-  ###
-    Emits given number of particles
-    @param  int count
-  ###
-  emit: (count)->
+/**
+ * Particle sub class
+ * @class bkcore.threejs.Particle
+ * @author Thibaut 'BKcore' Despoulain <http://bkcore.com>
+ */
+class Particle {
+  constructor(
+    public position: THREE.Vector3 = new THREE.Vector3(-10000, -10000, -10000),
+    public velocity: THREE.Vector3 = new THREE.Vector3(),
+    public force: THREE.Vector3 = new THREE.Vector3(),
+    public color: THREE.Color = new THREE.Color(0x000000),
+    public basecolor: THREE.Color = new THREE.Color(0x000000),
+    public life: number = 0.0,
+    public available: boolean = true
+  ) {}
 
-    emitable = Math.min(count, @pool.length)
+  // ... rest of the code
+}
 
-    for i in [0..emitable]
-
-      p = @pool.pop()
-      p.available = false
-
-      p.position.copy(@spawn).addSelf(
-        @randomVector().multiplySelf(@spawnRadius)
-      )
-      p.velocity.copy(@velocity).addSelf(
-        @randomVector().multiplySelf(@randomness)
-      )
-      p.force.copy(@force)
-      p.basecolor.copy(@color)
-
-      if @color2?
-        p.basecolor.lerpSelf(@color2, Math.random())
-
-      p.life = 1.0
-  
-  ###
-    @private
-  ###
-  build: ()->
-
-    @geometry = new THREE.Geometry()
-    @geometry.dynamic = true
-
-    @pool = []
-    @buffer = []
-
-    for i in [0..@max]
-
-      p = new bkcore.threejs.Particle()
-      @pool.push(p)
-      @buffer.push(p)
-      @geometry.vertices.push(p.position)
-      @geometry.colors.push(p.color)
-
-    @system = new THREE.ParticleSystem(@geometry, @material)
-    @system.position = @position
-    @system.rotation = @rotation
-    @system.sort = @sort
-
-  ###
-    @private
-  ###
-  randomVector: ()->
-
-    return new THREE.Vector3(
-      Math.random()*2-1,
-      Math.random()*2-1,
-      Math.random()*2-1
-    )
-
-  ###
-    Updates particles (should be call in a RAF loop)
-    @param  float dt time delta ~1.0
-  ###
-  update: (dt)->
-
-    df = new THREE.Vector3()
-    dv = new THREE.Vector3()
-
-    for i in [0..@buffer.length]
-
-      p = @buffer[i]
-      continue if p.available
-
-      p.life -= @ageing
-
-      if p.life <= 0
-        p.reset()
-        @pool.push(p)
-        continue
-
-
-      l = if p.life > 0.5 then 1.0 else p.life + 0.5
-      p.color.setRGB(
-        l * p.basecolor.r,
-        l * p.basecolor.g,
-        l * p.basecolor.b
-      )
-
-      if @friction != 1.0
-        p.velocity.multiplyScalar(@friction)
-
-      df.copy(p.force).multiplyScalar(dt)
-      p.velocity.addSelf(df)
-
-      dv.copy(p.velocity).multiplyScalar(dt)
-      p.position.addSelf(dv)
-
-    if @spawnRate > 0
-      @emit(@spawnRate)
-
-    @geometry.verticesNeedUpdate = true
-    @geometry.colorsNeedUpdate = true
-
-###
-  Particle sub class
-  
-  @class bkcore.threejs.Particle
-  @author Thibaut 'BKcore' Despoulain <http://bkcore.com>
-###
-class Particle
-
-  constructor: ()->
-
-    @position = new THREE.Vector3(-10000,-10000,-10000)
-    @velocity = new THREE.Vector3()
-    @force = new THREE.Vector3()
-    @color = new THREE.Color(0x000000)
-    @basecolor = new THREE.Color(0x000000)
-    @life = 0.0
-    @available = true
-
-  reset: ()->
-    @position.set(0,-100000,0)
-    @velocity.set(0,0,0)
-    @force.set(0,0,0)
-    @color.setRGB(0,0,0)
-    @basecolor.setRGB(0,0,0)
-    @life = 0.0
-    @available = true
-
-###
-  Exports
-  @package bkcore.threejs
-###
-exports = exports ? @
-exports.bkcore ||= {}
-exports.bkcore.threejs ||= {}
-exports.bkcore.threejs.Particle = Particle
-exports.bkcore.threejs.Particles = Particles
+// ... rest of the code
