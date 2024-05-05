@@ -1,5 +1,6 @@
-import { Props } from "../../../player-app";
-interface IpxProps {
+import { Props as PlayerAppProps } from "../../../player-app";
+
+interface IPxProps {
     arn: string | null;
     setArn: (ipxArn: string | null) => void;
     address: string | null;
@@ -9,9 +10,12 @@ interface IpxProps {
     awaitingConnection: boolean;
     setAwaitingConnection: (waitingIpx: boolean) => void;
 }
-export interface TokenProps extends Props {
-    ipx: IpxProps;
+
+interface TokenProps extends PlayerAppProps {
+    ipx: IPxProps;
     update: () => void;
 }
-export declare function TokenConfiguration(props: Props): import("preact").VNode<any> | import("preact").VNode<any>[];
-export {};
+
+declare function TokenConfiguration(props: TokenProps): JSX.Element;
+
+export { TokenConfiguration, TokenProps, IPxProps };
