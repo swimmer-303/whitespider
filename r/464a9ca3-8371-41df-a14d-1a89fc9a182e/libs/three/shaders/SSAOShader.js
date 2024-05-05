@@ -1,10 +1,10 @@
 /**
- * @author Mugen87 / https://github.com/Mugen87
+ * SSAO Shader
  *
- * References:
- * http://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html
- * https://learnopengl.com/Advanced-Lighting/SSAO
- * https://github.com/McNopper/OpenGL/blob/master/Example28/shader/ssao.frag.glsl
+ * Based on:
+ * - http://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html
+ * - https://learnopengl.com/Advanced-Lighting/SSAO
+ * - https://github.com/McNopper/OpenGL/blob/master/Example28/shader/ssao.frag.glsl
  */
 
 THREE.SSAOShader = {
@@ -63,7 +63,7 @@ THREE.SSAOShader = {
 		"uniform mat4 cameraInverseProjectionMatrix;",
 
 		"uniform float kernelRadius;",
-		"uniform float minDistance;", // avoid artifacts caused by neighbour fragments with minimal depth difference
+		"uniform float minDistance;", // avoid artifacts caused by neighbor fragments with minimal depth difference
 		"uniform float maxDistance;", // avoid the influence of fragments which are too far away
 
 		"varying vec2 vUv;",
@@ -86,7 +86,7 @@ THREE.SSAOShader = {
 
 		"	#else",
 
-		"		return texture2D( depthSampler, coord ).x;",
+		"		return texture2D( tDepth, screenPosition ).x;",
 
 		"	#endif",
 
@@ -175,6 +175,13 @@ THREE.SSAOShader = {
 
 };
 
+/**
+ * SSAO Depth Shader
+ *
+ * Based on:
+ * - https://github.com/Mugen87/three.js/blob/master/examples/js/shaders/SSAOShader.js
+ */
+
 THREE.SSAODepthShader = {
 
 	defines: {
@@ -223,7 +230,7 @@ THREE.SSAODepthShader = {
 
 		"	#else",
 
-		"		return texture2D( depthSampler, coord ).x;",
+		"		return texture2D( tDepth, screenPosition ).x;",
 
 		"	#endif",
 
@@ -239,6 +246,13 @@ THREE.SSAODepthShader = {
 	].join( "\n" )
 
 };
+
+/**
+ * SSAO Blur Shader
+ *
+ * Based on:
+ * - https://github.com/Mugen87/three.js/blob/master/examples/js/shaders/SSAOShader.js
+ */
 
 THREE.SSAOBlurShader = {
 
