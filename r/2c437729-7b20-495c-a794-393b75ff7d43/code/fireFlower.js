@@ -1,45 +1,39 @@
 /**
-	Represents a fire powerup.
-	Code by Rob Kleffner, 2011
-*/
+ * Represents a fire powerup.
+ * Code by Rob Kleffner, 2011
+ */
 
-Mario.FireFlower = function(world, x, y) {
-	this.Width = 4;
-	this.Height = 24;
-	
-	this.World = world;
-	this.X = x;
-	this.Y = y;
-	this.Image = Enjine.Resources.Images["items"];
-	
-	this.XPicO = 8;
-	this.YPicO = 15;
-	this.XPic = 1;
-	this.YPic = 0;
-	this.Height = 12;
-	this.Facing = 1;
-	this.PicWidth = this.PicHeight = 16;
-	
-	this.Life = 0;
-};
+class FireFlower extends NotchSprite {
+  constructor(world, x, y) {
+    super(world, x, y, 4, 24, Enjine.Resources.Images["items"]);
 
-Mario.FireFlower.prototype = new Mario.NotchSprite();
+    this.imageOffsetX = 8;
+    this.imageOffsetY = 15;
+    this.imageIndexX = 1;
+    this.imageIndexY = 0;
+    this.height = 12;
+    this.facing = 1;
+    this.imageWidth = this.imageHeight = 16;
+    this.life = 0;
+  }
 
-Mario.FireFlower.prototype.CollideCheck = function() {
-	var xMarioD = Mario.MarioCharacter.X - this.X, yMarioD = Mario.MarioCharacter.Y - this.Y;
-	if (xMarioD > -16 && xMarioD < 16) {
-		if (yMarioD > -this.Height && yMarioD < Mario.MarioCharacter.Height) {
-			Mario.MarioCharacter.GetFlower();
-			this.World.RemoveSprite(this);
-		}
-	}
-};
+  collideCheck() {
+    const xMarioD = Mario.MarioCharacter.X - this.X,
+      yMarioD = Mario.MarioCharacter.Y - this.Y;
 
-Mario.FireFlower.prototype.Move = function() {
-	if (this.Life < 9) {
-		this.Layer = 0;
-		this.Y--;
-		this.Life++;
-		return;
-	}
-};
+    if (xMarioD > -16 && xMarioD < 16) {
+      if (yMarioD > -this.height && yMarioD < Mario.MarioCharacter.Height) {
+        Mario.MarioCharacter.getFlower();
+        this.world.removeSprite(this);
+      }
+    }
+  }
+
+  move() {
+    if (this.life < 9) {
+      this.layer = 0;
+      this.Y--;
+      this.life++;
+    }
+  }
+}
