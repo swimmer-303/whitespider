@@ -8,53 +8,56 @@
 
 THREE.AfterimageShader = {
 
-	uniforms: {
+    name: 'AfterimageShader',
 
-		"damp": { value: 0.96 },
-		"tOld": { value: null },
-		"tNew": { value: null }
+    uniforms: {
 
-	},
+        damp: { value: 0.96 },
+        tOld: { value: null },
+        tNew: { value: null }
 
-	vertexShader: [
+    },
 
-		"varying vec2 vUv;",
+    vertexShader: [
 
-		"void main() {",
+        "varying vec2 vUv;",
 
-		"	vUv = uv;",
-		"	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+        "void main() {",
 
-		"}"
+        "	vUv = uv;",
+        "	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
 
-	].join( "\n" ),
+        "}"
 
-	fragmentShader: [
+    ].join( "\n" ),
 
-		"uniform float damp;",
+    fragmentShader: [
 
-		"uniform sampler2D tOld;",
-		"uniform sampler2D tNew;",
+        "uniform float damp;",
 
-		"varying vec2 vUv;",
+        "uniform sampler2D tOld;",
+        "uniform sampler2D tNew;",
 
-		"vec4 when_gt( vec4 x, float y ) {",
+        "varying vec2 vUv;",
 
-		"	return max( sign( x - y ), 0.0 );",
+        "vec4 when_gt( vec4 x, float y ) {",
 
-		"}",
+        "	return max( sign( x - y ), 0.0 );",
 
-		"void main() {",
+        "}",
 
-		"	vec4 texelOld = texture2D( tOld, vUv );",
-		"	vec4 texelNew = texture2D( tNew, vUv );",
+        "void main() {",
 
-		"	texelOld *= damp * when_gt( texelOld, 0.1 );",
+        "	vec4 texelOld = texture2D( tOld, vUv );",
+        "	vec4 texelNew = texture2D( tNew, vUv );",
 
-		"	gl_FragColor = max(texelNew, texelOld);",
+        "	texelOld *= damp * when_gt( texelOld, 0.1 );",
 
-		"}"
+        "	gl_FragColor = max(texelNew, texelOld);",
 
-	].join( "\n" )
+        "}"
+
+    ].join( "\n" )
 
 };
+
