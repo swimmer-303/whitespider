@@ -6,16 +6,28 @@
   @class bkcore.Utils
   @author Thibaut 'BKcore' Despoulain <http://bkcore.com>
  */
-
 (function() {
-  var Utils, exports;
+  var Utils;
 
   Utils = (function() {
 
     /*
       Creates a bkcore.threejs.Shaders["normalV"|"normal"] material
       with given parameters
-     */
+    
+      @param {Object} [opts] - Options object
+      @param {Number} [opts.ambient=0x444444] - Ambient color
+      @param {Number} [opts.normalScale=1.0] - Normal scale
+      @param {Number} [opts.reflectivity=0.9] - Reflectivity
+      @param {Number} [opts.shininess=42] - Shininess
+      @param {Boolean} [opts.metal=false] - Metalness
+      @param {THREE.Texture} [opts.normal] - Normal map
+      @param {THREE.Texture} [opts.diffuse] - Diffuse map
+      @param {THREE.Texture} [opts.specular] - Specular map
+      @param {THREE.CubeTexture} [opts.cube] - Cube map
+      @param {Boolean} [opts.perPixel=false] - Use per-pixel lighting
+      @return {THREE.ShaderMaterial}
+    */
     function Utils() {}
 
     Utils.createNormalMaterial = function(opts) {
@@ -23,37 +35,10 @@
       if (opts == null) {
         opts = {};
       }
-      if (opts.ambient == null) {
-        opts.ambient = 0x444444;
-      }
-      if (opts.normalScale == null) {
-        opts.normalScale = 1.0;
-      }
-      if (opts.reflectivity == null) {
-        opts.reflectivity = 0.9;
-      }
-      if (opts.shininess == null) {
-        opts.shininess = 42;
-      }
-      if (opts.metal == null) {
-        opts.metal = false;
-      }
       shadername = opts.perPixel ? "normalV" : "normal";
       shader = bkcore.threejs.Shaders[shadername];
       uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-      uniforms["enableDiffuse"].value = true;
-      uniforms["enableSpecular"].value = true;
-      uniforms["enableReflection"].value = !!opts.cube;
-      uniforms["tNormal"].texture = opts.normal;
-      uniforms["tDiffuse"].texture = opts.diffuse;
-      uniforms["tSpecular"].texture = opts.specular;
-      uniforms["uAmbientColor"].value.setHex(opts.ambient);
-      uniforms["uAmbientColor"].value.convertGammaToLinear();
-      uniforms["uNormalScale"].value = opts.normalScale;
-      if (opts.cube != null) {
-        uniforms["tCube"].texture = opts.cube;
-        uniforms["uReflectivity"].value = opts.reflectivity;
-      }
+      Utils.createUniforms(uniforms, opts);
       parameters = {
         fragmentShader: shader.fragmentShader,
         vertexShader: shader.vertexShader,
@@ -67,13 +52,12 @@
       return material;
     };
 
-
     /*
       Projects an object origin vector to screen using given camera
-      @param  THREE.Object3D object The object which origin you want to project
-      @param  THREE.Camera camera The camera of the projection
+      @param  THREE.Object3D object - The object which origin you want to project
+      @param  THREE.Camera camera - The camera of the projection
       @return THEE.Vector3 Projected verctor
-     */
+    */
 
     Utils.projectOnScreen = function(object, camera) {
       var c, lPos, mat;
@@ -85,33 +69,25 @@
       return lPos.multiplyScalar(0.5).addScalar(0.5);
     };
 
-
     /*
       Get an url parameter
-      @param  String name Parameter slug
+      @param  String name - Parameter slug
       @return Mixed
-     */
-
-    Utils.URLParameters = null;
-
+    */
     Utils.getURLParameter = function(name) {
-      if (this.URLParameters == null) {
-        this.URLParameters = {};
-        window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (function(_this) {
-          return function(m, key, val) {
-            return _this.URLParameters[key] = val;
-          };
-        })(this));
+      if (Utils.URLParameters == null) {
+        Utils.URLParameters = {};
+        window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, val) {
+          return Utils.URLParameters[key] = val;
+        });
       }
-      return this.URLParameters[name];
+      return Utils.URLParameters[name];
     };
-
 
     /*
       Get top offset of an element
       @param obj HTMLElement
-     */
-
+    */
     Utils.getOffsetTop = function(obj) {
       var curtop;
       curtop = obj.offsetTop;
@@ -123,24 +99,20 @@
       return curtop;
     };
 
-
     /*
       Scrolls page to given element id
-      @param  string id The ID of the element
-     */
-
+      @param  string id - The ID of the element
+    */
     Utils.scrollTo = function(id) {
-      return window.scroll(0, this.getOffsetTop(document.getElementById(id)));
+      return window.scroll(0, Utils.getOffsetTop(document.getElementById(id)));
     };
-
 
     /*
       Add or remove a class from an element
-      @param  string id       [description]
-      @param  string cssclass [description]
-      @param  bool active   [description]
-     */
-
+      @param  string id - The ID of the element
+      @param  string cssclass - The CSS class
+      @param  bool active - Whether to add or remove the class
+    */
     Utils.updateClass = function(id, cssclass, active) {
       var e;
       e = document.getElementById(id);
@@ -154,17 +126,16 @@
       }
     };
 
-
     /*
       Performs an XMLHttpRequest
-      @param  string   url      [description]
-      @param  bool   postData true = POST, false = GET
-      @param  {Function} callback [description]
-      @param  {Object}   data     [description]
-     */
-
+      @param  string url - The URL to request
+      @param  bool postData - Whether to use POST method
+      @param  {Function} callback - The callback function
+      @param  {Object} data - The data to send
+    */
     Utils.request = function(url, postData, callback, data) {
       var XMLHttpFactories, createXMLHTTPObject, i, method, qdata, req, val;
+
       XMLHttpFactories = [
         function() {
           return new XMLHttpRequest();
@@ -176,6 +147,7 @@
           return new ActiveXObject("Microsoft.XMLHTTP");
         }
       ];
+
       createXMLHTTPObject = function() {
         var e, i, xmlhttp, _i, _ref;
         xmlhttp = false;
@@ -190,25 +162,29 @@
         }
         return xmlhttp;
       };
+
       req = createXMLHTTPObject();
       if (req == null) {
         return;
       }
-      method = postData != null ? "POST" : "GET";
+
+      method = postData ? "POST" : "GET";
       qdata = "o=bk";
       if (data != null) {
         for (i in data) {
           val = data[i];
           qdata += "&" + i + "=" + val;
-          if (postData != null) {
+          if (postData) {
             url += "?" + qdata;
           }
         }
       }
+
       req.open(method, url, true);
-      if (postData != null) {
+      if (postData) {
         req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       }
+
       req.onreadystatechange = function() {
         if (req.readyState !== 4) {
           return;
@@ -218,17 +194,38 @@
         }
         return typeof callback === "function" ? callback(req) : void 0;
       };
+
       req.send(qdata);
       return req;
     };
 
-
     /*
       Checks whether the device supports Touch input
-     */
-
+      @return {Boolean}
+    */
     Utils.isTouchDevice = function() {
-      return ('ontouchstart' in window) || (navigator.MaxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+      return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+    };
+
+    /*
+      Creates uniforms for the given object
+      @param {Object} uniforms - Uniforms object
+      @param {Object} [opts] - Options object
+    */
+    Utils.createUniforms = function(uniforms, opts) {
+      uniforms["enableDiffuse"].value = true;
+      uniforms["enableSpecular"].value = true;
+      uniforms["enableReflection"].value = !!opts.cube;
+      uniforms["tNormal"].texture = opts.normal;
+      uniforms["tDiffuse"].texture = opts.diffuse;
+      uniforms["tSpecular"].texture = opts.specular;
+      uniforms["uAmbientColor"].value.setHex(opts.ambient);
+      uniforms["uAmbientColor"].value.convertGammaToLinear();
+      uniforms["uNormalScale"].value = opts.normalScale;
+      if (opts.cube != null) {
+        uniforms["tCube"].texture = opts.cube;
+        uniforms["uReflectivity"].value = opts.reflectivity;
+      }
     };
 
     return Utils;
@@ -241,10 +238,7 @@
     @package bkcore
    */
 
-  exports = exports != null ? exports : this;
-
-  exports.bkcore || (exports.bkcore = {});
-
-  exports.bkcore.Utils = Utils;
+  window.bkcore = window.bkcore || {};
+  window.bkcore.Utils = Utils;
 
 }).call(this);
