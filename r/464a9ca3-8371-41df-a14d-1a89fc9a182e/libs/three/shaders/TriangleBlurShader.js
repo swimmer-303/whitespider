@@ -1,6 +1,4 @@
 /**
- * @author zz85 / http://www.lab4games.net/zz85/blog
- *
  * Triangle blur shader
  * based on glfx.js triangle blur shader
  * https://github.com/evanw/glfx.js
@@ -10,63 +8,33 @@
  * perpendicular triangle filters.
  */
 
-THREE.TriangleBlurShader = {
+#ifdef GL_ES
+precision highp float;
+#endif
 
-	uniforms: {
+#define ITERATIONS 10.0
+#define TWO_PI 6.2831853
 
-		"texture": { value: null },
-		"delta": { value: new THREE.Vector2( 1, 1 ) }
+uniform sampler2D texture;
+uniform vec2 delta;
 
-	},
+varying vec2 vUv;
 
-	vertexShader: [
+void main() {
+	vec4 color = vec4(0.0);
+	float total = 0.0;
 
-		"varying vec2 vUv;",
+	// randomize the lookup values to hide the fixed number of samples
+	float offset = fract(sin(dot(vUv, vec2(12.9898,78.233))) * 43758.5453);
 
-		"void main() {",
+	for (float t = -ITERATIONS; t <= ITERATIONS; t++) {
+		float percent = (t + offset - 0.5) / ITERATIONS;
+		float weight = 1.0 - abs(percent);
 
-		"	vUv = uv;",
-		"	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+		vec2 texOffset = delta * percent;
+		color += texture2D(texture, vUv + texOffset) * weight;
+		total += weight;
+	}
 
-		"}"
-
-	].join( "\n" ),
-
-	fragmentShader: [
-
-		"#include <common>",
-
-		"#define ITERATIONS 10.0",
-
-		"uniform sampler2D texture;",
-		"uniform vec2 delta;",
-
-		"varying vec2 vUv;",
-
-		"void main() {",
-
-		"	vec4 color = vec4( 0.0 );",
-
-		"	float total = 0.0;",
-
-		// randomize the lookup values to hide the fixed number of samples
-
-		"	float offset = rand( vUv );",
-
-		"	for ( float t = -ITERATIONS; t <= ITERATIONS; t ++ ) {",
-
-		"		float percent = ( t + offset - 0.5 ) / ITERATIONS;",
-		"		float weight = 1.0 - abs( percent );",
-
-		"		color += texture2D( texture, vUv + delta * percent ) * weight;",
-		"		total += weight;",
-
-		"	}",
-
-		"	gl_FragColor = color / total;",
-
-		"}"
-
-	].join( "\n" )
-
-};
+	gl_FragColor = color / total;
+}
