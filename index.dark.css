@@ -1,43 +1,70 @@
+/* Base styles */
 body {
 	color: #e0e0e0;
 	background: #202020;
 }
 
-option, optgroup {
+button, input[type="button"], [role="button"] {
+	background-repeat: no-repeat;
+	background-position: center left;
+	padding-left: 20px;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+button:hover,
+input[type="button"]:hover,
+[role="button"]:hover {
+	background-color: #606060;
+}
+
+button:active,
+input[type="button"]:active,
+[role="button"]:active {
+	background-color: #808080;
+}
+
+/* Common classes */
+.bg-dark {
 	background: #404040;
 }
 
-.text-body, #game-category, #game-navigator {
+.bg-light {
+	background: #606060;
+}
+
+.bordered {
 	border-color: #606060;
-	background: #404040;
 }
 
-#navigation-bar {
-	background: #404040;
+.white-icon {
+	background-color: #ffffff;
 }
 
-#nav-bar>button[current], #game-category>button[current] {
-	color: #ffffff;
+/* Specific styles */
+#hamb > div,
+#hamb > div::before,
+#hamb > div::after {
+	width: 2px;
+	height: 2px;
 }
 
-#hamb>div, #hamb>div::before, #hamb>div::after {
-	background: #ffffff;
-}
-
-#game-search>button, #yt-search>button {
+#game-search > button,
+#yt-search > button {
 	background-image: url("res/search-w.svg");
 }
 
-#game-container>div {
-	border-color: #606060;
-	background-color: #404040;
-}
-
-#game-container>div>div {
+#game-container > div,
+#game-container > div > div {
 	color: #e0e0e0;
 }
 
-#history, #sidemenu, #header {
+#history,
+#sidemenu,
+#header,
+#cg-chat,
+#chat {
 	background: #404040;
 }
 
@@ -49,23 +76,21 @@ option, optgroup {
 	background-image: url("res/close-w.svg");
 }
 
-#history>div>div>button {
+#history > div > div > button {
 	background-image: url("res/delete-w.svg");
 }
 
-#cg-chat, #chat {
-	background: #202020;
-}
-
-#chatgpt>button, #sendmsg>button {
+#chatgpt > button,
+#sendmsg > button {
 	background-image: url("res/send-w.svg");
 }
 
-#server-name, #account {
+#server-name,
+#account {
 	background: #505050;
 }
 
-#server-name>button {
+#server-name > button {
 	background-image: url("res/close-w.svg");
 }
 
@@ -81,7 +106,8 @@ option, optgroup {
 	background: #303030;
 }
 
-#tabs>div[current], #toolbar {
+#tabs > div[current],
+#toolbar {
 	background: #404040;
 }
 
@@ -89,7 +115,7 @@ option, optgroup {
 	background-image: url("res/add-w.svg");
 }
 
-#tabs>div>button {
+#tabs > div > button {
 	background-image: url("res/close-w.svg");
 }
 
@@ -105,15 +131,56 @@ option, optgroup {
 	background-image: url("res/refresh-w.svg");
 }
 
-#yt-load-more:hover, #new-tab:hover, #tabs>div>button:hover, #back:hover, #forward:hover, #refresh:hover, #delmsg:hover, #new-chat:hover, #cg-close:hover, #menu:hover, #history>div>div:hover, #channels>div:hover {
+#yt-load-more,
+#new-tab,
+#tabs > div > button,
+#back,
+#forward,
+#refresh,
+#delmsg,
+#new-chat,
+#cg-close,
+#menu,
+#history > div > div,
+#channels > div {
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+#yt-load-more:hover,
+#new-tab:hover,
+#tabs > div > button:hover,
+#back:hover,
+#forward:hover,
+#refresh:hover,
+#delmsg:hover,
+#new-chat:hover,
+#cg-close:hover,
+#menu:hover,
+#history > div > div:hover,
+#channels > div:hover {
 	background-color: #606060;
 }
 
-#yt-load-more:active, #new-tab:active, #tabs>div>button:active, #back:active, #forward:active, #refresh:active, #delmsg:active, #new-chat:active, #cg-close:active, #menu:active, #history>div>div:active, #history>div>div[current], #channels>div:active, #channels>div[current] {
+#yt-load-more:active,
+#new-tab:active,
+#tabs > div > button:active,
+#back:active,
+#forward:active,
+#refresh:active,
+#delmsg:active,
+#new-chat:active,
+#cg-close:active,
+#menu:active,
+#history > div > div:active,
+#history > div > div[current],
+#channels > div:active,
+#channels > div[current] {
 	background-color: #808080;
 }
 
-#address, #mode>select {
+#address,
+#mode > select {
 	background: #202020;
 }
 
@@ -121,6 +188,7 @@ option, optgroup {
 	background: #404040;
 }
 
-#glink, #ulink {
+#glink,
+#ulink {
 	background-image: url("res/link-w.svg");
 }
