@@ -1,8 +1,6 @@
 /**
- * @author zz85 / http://www.lab4games.net/zz85/blog
- *
- * Two pass Gaussian blur filter (horizontal and vertical blur shaders)
- * - described in http://www.gamerendering.com/2008/10/11/gaussian-blur-filter-shader/
+ * A two-pass Gaussian blur filter, consisting of horizontal and vertical blur shaders.
+ * - Based on the description in http://www.gamerendering.com/2008/10/11/gaussian-blur-filter-shader/
  *   and used in http://www.cake23.de/traveling-wavefronts-lit-up.html
  *
  * - 9 samples per pass
@@ -12,51 +10,49 @@
 
 THREE.HorizontalBlurShader = {
 
-	uniforms: {
+    name: 'HorizontalBlurShader',
 
-		"tDiffuse": { value: null },
-		"h": { value: 1.0 / 512.0 }
+    uniforms: {
 
-	},
+        tDiffuse: { value: null },
+        h: { value: 1.0 / 512.0 } // should be set to 1 / width
 
-	vertexShader: [
+    },
 
-		"varying vec2 vUv;",
+    vertexShader: [
 
-		"void main() {",
+        'varying vec2 vUv;',
 
-		"	vUv = uv;",
-		"	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+        'void main() {',
 
-		"}"
+        '	vUv = uv;',
+        '	gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
 
-	].join( "\n" ),
+        '}'
 
-	fragmentShader: [
+    ].join( "\n" ),
 
-		"uniform sampler2D tDiffuse;",
-		"uniform float h;",
+    fragmentShader: [
 
-		"varying vec2 vUv;",
+        'uniform sampler2D tDiffuse;',
+        'uniform float h;',
 
-		"void main() {",
+        'varying vec2 vUv;',
 
-		"	vec4 sum = vec4( 0.0 );",
+        'void main() {',
 
-		"	sum += texture2D( tDiffuse, vec2( vUv.x - 4.0 * h, vUv.y ) ) * 0.051;",
-		"	sum += texture2D( tDiffuse, vec2( vUv.x - 3.0 * h, vUv.y ) ) * 0.0918;",
-		"	sum += texture2D( tDiffuse, vec2( vUv.x - 2.0 * h, vUv.y ) ) * 0.12245;",
-		"	sum += texture2D( tDiffuse, vec2( vUv.x - 1.0 * h, vUv.y ) ) * 0.1531;",
-		"	sum += texture2D( tDiffuse, vec2( vUv.x, vUv.y ) ) * 0.1633;",
-		"	sum += texture2D( tDiffuse, vec2( vUv.x + 1.0 * h, vUv.y ) ) * 0.1531;",
-		"	sum += texture2D( tDiffuse, vec2( vUv.x + 2.0 * h, vUv.y ) ) * 0.12245;",
-		"	sum += texture2D( tDiffuse, vec2( vUv.x + 3.0 * h, vUv.y ) ) * 0.0918;",
-		"	sum += texture2D( tDiffuse, vec2( vUv.x + 4.0 * h, vUv.y ) ) * 0.051;",
+        '	vec4 sum = vec4( 0.0 );',
 
-		"	gl_FragColor = sum;",
+        '	for( int i = -4; i <= 4; i++ ) {',
+        '		float multiplier = 0.051 * (1.0 / 9.0) + 0.1633 * (i == 0 ? 1.0 : 0.0);',
+        '		sum += texture2D( tDiffuse, vec2( vUv.x + float(i) * h, vUv.y ) ) * multiplier;',
+        '	}',
 
-		"}"
+        '	gl_FragColor = sum;',
 
-	].join( "\n" )
+        '}'
+
+    ].join( "\n" )
 
 };
+
