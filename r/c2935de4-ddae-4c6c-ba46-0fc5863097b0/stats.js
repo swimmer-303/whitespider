@@ -2,142 +2,143 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-var Stats = function () {
+'use strict';
 
-  var startTime = Date.now(), prevTime = startTime;
-  var ms = 0, msMin = 1000, msMax = 0;
-  var fps = 0, fpsMin = 1000, fpsMax = 0;
-  var frames = 0, mode = 0;mode
-  var container = document.createElement( 'div' );
-  container.id = 'stats';
-  container.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); setMode( ++ mode % 2 ) }, false );
-  container.style.cssText = 'width:80px;opacity:0.9;cursor:pointer';
+class Stats {
 
-  var fpsDiv = document.createElement( 'div' );
-  fpsDiv.id = 'fps';
-  fpsDiv.style.cssText = 'padding:0 0 3px 3px;text-align:left;background-color:#002';
-  container.appendChild( fpsDiv );
+  constructor() {
 
-  var fpsText = document.createElement( 'div' );
-  fpsText.id = 'fpsText';
-  fpsText.style.cssText = 'color:#0ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
-  fpsText.innerHTML = 'FPS';
-  fpsDiv.appendChild( fpsText );
+    this.startTime = Date.now();
+    this.prevTime = this.startTime;
+    this.ms = 0;
+    this.msMin = 1000;
+    this.msMax = 0;
+    this.fps = 0;
+    this.fpsMin = 1000;
+    this.fpsMax = 0;
+    this.frames = 0;
+    this.mode = 0;
 
-  var fpsGraph = document.createElement( 'div' );
-  fpsGraph.id = 'fpsGraph';
-  fpsGraph.style.cssText = 'position:relative;width:74px;height:30px;background-color:#0ff';
-  fpsDiv.appendChild( fpsGraph );
+    this.container = document.createElement( 'div' );
+    this.container.id = 'stats';
+    this.container.addEventListener( 'mousedown', () => {
+      this.event.preventDefault();
+      this.setMode( ++ this.mode % 2 );
+    }, false );
+    this.container.style.cssText = 'width:80px;opacity:0.9;cursor:pointer';
 
-  while ( fpsGraph.children.length < 74 ) {
+    this.fpsDiv = document.createElement( 'div' );
+    this.fpsDiv.id = 'fps';
+    this.fpsDiv.style.cssText = 'padding:0 0 3px 3px;text-align:left;background-color:#002';
+    this.container.appendChild( this.fpsDiv );
 
-    var bar = document.createElement( 'span' );
-    bar.style.cssText = 'width:1px;height:30px;float:left;background-color:#113';
-    fpsGraph.appendChild( bar );
+    this.fpsText = document.createElement( 'div' );
+    this.fpsText.id = 'fpsText';
+    this.fpsText.style.cssText = 'color:#0ff;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
+    this.fpsText.innerHTML = 'FPS';
+    this.fpsDiv.appendChild( this.fpsText );
 
-  }
+    this.fpsGraph = document.createElement( 'div' );
+    this.fpsGraph.id = 'fpsGraph';
+    this.fpsGraph.style.cssText = 'position:relative;width:74px;height:30px;background-color:#0ff';
+    this.fpsDiv.appendChild( this.fpsGraph );
 
-  var msDiv = document.createElement( 'div' );
-  msDiv.id = 'ms';
-  msDiv.style.cssText = 'padding:0 0 3px 3px;text-align:left;background-color:#020;display:none';
-  container.appendChild( msDiv );
+    while ( this.fpsGraph.children.length < 74 ) {
 
-  var msText = document.createElement( 'div' );
-  msText.id = 'msText';
-  msText.style.cssText = 'color:#0f0;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
-  msText.innerHTML = 'MS';
-  msDiv.appendChild( msText );
+      const bar = document.createElement( 'span' );
+      bar.style.cssText = 'width:1px;height:30px;float:left;background-color:#113';
+      this.fpsGraph.appendChild( bar );
 
-  var msGraph = document.createElement( 'div' );
-  msGraph.id = 'msGraph';
-  msGraph.style.cssText = 'position:relative;width:74px;height:30px;background-color:#0f0';
-  msDiv.appendChild( msGraph );
-
-  while ( msGraph.children.length < 74 ) {
-
-    var bar = document.createElement( 'span' );
-    bar.style.cssText = 'width:1px;height:30px;float:left;background-color:#131';
-    msGraph.appendChild( bar );
-
-  }
-
-  var setMode = function ( value ) {
-
-    mode = value;
-
-    switch ( mode ) {
-
-      case 0:
-        fpsDiv.style.display = 'block';
-        msDiv.style.display = 'none';
-        break;
-      case 1:
-        fpsDiv.style.display = 'none';
-        msDiv.style.display = 'block';
-        break;
     }
 
-  }
+    this.msDiv = document.createElement( 'div' );
+    this.msDiv.id = 'ms';
+    this.msDiv.style.cssText = 'padding:0 0 3px 3px;text-align:left;background-color:#020;display:none';
+    this.container.appendChild( this.msDiv );
 
-  var updateGraph = function ( dom, value ) {
+    this.msText = document.createElement( 'div' );
+    this.msText.id = 'msText';
+    this.msText.style.cssText = 'color:#0f0;font-family:Helvetica,Arial,sans-serif;font-size:9px;font-weight:bold;line-height:15px';
+    this.msText.innerHTML = 'MS';
+    this.msDiv.appendChild( this.msText );
 
-    var child = dom.appendChild( dom.firstChild );
-    child.style.height = value + 'px';
+    this.msGraph = document.createElement( 'div' );
+    this.msGraph.id = 'msGraph';
+    this.msGraph.style.cssText = 'position:relative;width:74px;height:30px;background-color:#0f0';
+    this.msDiv.appendChild( this.msGraph );
 
-  }
+    while ( this.msGraph.children.length < 74 ) {
 
-  return {
+      const bar = document.createElement( 'span' );
+      bar.style.cssText = 'width:1px;height:30px;float:left;background-color:#131';
+      this.msGraph.appendChild( bar );
 
-    domElement: container,
+    }
 
-    setMode: setMode,
+    this.setMode = ( value ) => {
 
-    current: function() { return fps; },
+      this.mode = value;
 
-    begin: function () {
+      switch ( this.mode ) {
 
-      startTime = Date.now();
-
-    },
-
-    end: function () {
-
-      var time = Date.now();
-
-      ms = time - startTime;
-      msMin = Math.min( msMin, ms );
-      msMax = Math.max( msMax, ms );
-
-      msText.textContent = ms + ' MS (' + msMin + '-' + msMax + ')';
-      updateGraph( msGraph, Math.min( 30, 30 - ( ms / 200 ) * 30 ) );
-
-      frames ++;
-
-      if ( time > prevTime + 1000 ) {
-
-        fps = Math.round( ( frames * 1000 ) / ( time - prevTime ) );
-        fpsMin = Math.min( fpsMin, fps );
-        fpsMax = Math.max( fpsMax, fps );
-
-        fpsText.textContent = fps + ' FPS (' + fpsMin + '-' + fpsMax + ')';
-        updateGraph( fpsGraph, Math.min( 30, 30 - ( fps / 100 ) * 30 ) );
-
-        prevTime = time;
-        frames = 0;
-
+        case 0:
+          this.fpsDiv.style.display = 'block';
+          this.msDiv.style.display = 'none';
+          break;
+        case 1:
+          this.fpsDiv.style.display = 'none';
+          this.msDiv.style.display = 'block';
+          break;
       }
 
-      return time;
+    }
 
-    },
+    this.updateGraph = ( dom, value ) => {
 
-    update: function () {
+      const child = dom.appendChild( dom.firstChild );
+      child.style.height = value + 'px';
 
-      startTime = this.end();
-      
     }
 
   }
-  
-};
 
+  get event() {
+
+    return window.event || {};
+
+  }
+
+  get domElement() {
+
+    return this.container;
+
+  }
+
+  begin() {
+
+    this.startTime = Date.now();
+
+  }
+
+  end() {
+
+    const time = Date.now();
+
+    this.ms = time - this.startTime;
+    this.msMin = Math.min( this.msMin, this.ms );
+    this.msMax = Math.max( this.msMax, this.ms );
+
+    this.msText.textContent = this.ms + ' MS (' + this.msMin + '-' + this.msMax + ')';
+
+    return time;
+
+  }
+
+  update() {
+
+    this.startTime = this.end();
+    requestAnimationFrame( () => this.update() );
+
+  }
+
+}
