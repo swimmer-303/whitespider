@@ -2,58 +2,64 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.SavePass = function ( renderTarget ) {
+THREE.SavePass = function ( width, height, renderTarget ) {
 
-	THREE.Pass.call( this );
+  THREE.Pass.call( this );
 
-	if ( THREE.CopyShader === undefined )
-		console.error( "THREE.SavePass relies on THREE.CopyShader" );
+  if ( THREE.UniformsLib['copy'] === undefined )
+    console.error( "THREE.SavePass relies on THREE.UniformsLib['copy']" );
 
-	var shader = THREE.CopyShader;
+  this.textureID = "tDiffuse";
 
-	this.textureID = "tDiffuse";
+  this.uniforms = THREE.UniformsUtils.clone( THREE.UniformsLib['copy'].uniforms );
 
-	this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+  this.material = new THREE.ShaderMaterial( {
 
-	this.material = new THREE.ShaderMaterial( {
+    uniforms: this.uniforms,
+    vertexShader: THREE.UniformsLib['copy'].vertexShader,
+    fragmentShader: THREE.UniformsLib['copy'].fragmentShader
 
-		uniforms: this.uniforms,
-		vertexShader: shader.vertexShader,
-		fragmentShader: shader.fragmentShader
+  } );
 
-	} );
+  this.width = width || window.innerWidth;
+  this.height = height || window.innerHeight;
 
-	this.renderTarget = renderTarget;
+  this.renderTarget = renderTarget;
 
-	if ( this.renderTarget === undefined ) {
+  if ( this.renderTarget === undefined ) {
 
-		this.renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: false } );
-		this.renderTarget.texture.name = "SavePass.rt";
+    this.renderTarget = new THREE.WebGLRenderTarget( this.width, this.height, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: false } );
+    this.renderTarget.texture.name = "SavePass.rt";
 
-	}
+  }
 
-	this.needsSwap = false;
+  this.needsSwap = false;
 
-	this.fsQuad = new THREE.Pass.FullScreenQuad( this.material );
+  this.fsQuad = new THREE.Pass.FullScreenQuad( this.material );
 
 };
 
 THREE.SavePass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
 
-	constructor: THREE.SavePass,
+  constructor: THREE.SavePass,
 
-	render: function ( renderer, writeBuffer, readBuffer ) {
+  render: function ( renderer, writeBuffer, readBuffer ) {
 
-		if ( this.uniforms[ this.textureID ] ) {
+    if ( this.uniforms[ this.textureID ] ) {
 
-			this.uniforms[ this.textureID ].value = readBuffer.texture;
+      this.uniforms[ this.textureID ].value = readBuffer.texture;
 
-		}
+    }
 
-		renderer.setRenderTarget( this.renderTarget );
-		if ( this.clear ) renderer.clear();
-		this.fsQuad.render( renderer );
+    renderer.setRenderTarget( this.renderTarget );
+    if ( this.clear ) renderer.clear();
+    this.fsQuad.render( renderer );
 
-	}
+  },
+
+  dispose: function() {
+    this.material.dispose();
+    this.renderTarget.dispose();
+  }
 
 } );
