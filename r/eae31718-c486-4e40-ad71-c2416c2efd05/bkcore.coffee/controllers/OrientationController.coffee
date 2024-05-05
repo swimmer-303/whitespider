@@ -1,72 +1,102 @@
-###
-  OrientationController (Orientation + buttons) for touch devices
-  
-  @class bkcore.OrientationController
-  @author Thibaut 'BKcore' Despoulain <http://bkcore.com>
-###
-class OrientationController
+class OrientationController {
+  constructor(dom, registerTouch = true, touchCallback = null) {
+    this.active = true;
+    this.alpha = 0.0;
+    this.beta = 0.0;
+    this.gamma = 0.0;
+    this.dalpha = null;
+    this.dbeta = null;
+    this.dgamma = null;
+    this.touches = null;
+    this.gammaSign = 1;
 
-  @isCompatible: ->
-    return ('DeviceOrientationEvent' of window)
+    if (this.isCompatible()) {
+      window.addEventListener('deviceorientation', (e) => this.orientationChange(e), false);
+    }
 
-  ###
-    Creates a new OrientationController
+    if (registerTouch) {
+      dom.addEventListener('touchstart', (e) => this.touchStart(e), false);
+      dom.addEventListener('touchend', (e) => this.touchEnd(e), false);
+    }
 
-    @param dom DOMElement The element that will listen to touch events
-    @param registerTouch bool Enable touch detection
-    @param touchCallback function Callback for touches
-  ###
-  constructor: (@dom, @registerTouch=true, @touchCallback=null) ->
-    @active = true
-    @alpha = 0.0
-    @beta = 0.0
-    @gamma  = 0.0
-    @dalpha = null
-    @dbeta = null
-    @dgamma = null
-    @touches = null
+    this.lockOrientation = this.lockOrientation.bind(this);
+    this.dispose = this.dispose.bind(this);
+  }
 
-    window.addEventListener('deviceorientation', ((e)=> @orientationChange(e)), false)
-    if @registerTouch
-      @dom.addEventListener('touchstart', ((e)=> @touchStart(e)), false)
-      @dom.addEventListener('touchend', ((e)=> @touchEnd(e)), false)
+  isCompatible() {
+    return 'DeviceOrientationEvent' in window;
+  }
 
-  ###
-    @private
-  ###
-  orientationChange: (event) ->
-    return if not @active
-    if(@dalpha == null)
-      console.log "calbrate", event.beta 
-      @dalpha = event.alpha
-      @dbeta = event.beta
-      @dgamma = event.gamma
-    @alpha = event.alpha - @dalpha
-    @beta = event.beta - @dbeta
-    @gamma = event.gamma - @dgamma
-    false
+  orientationChange(event) {
+    if (!this.active) return;
 
-  ###
-    @private
-  ###
-  touchStart: (event) ->
-    return if not @active
-    for touch in event.changedTouches
-        @touchCallback?(on, touch, event)
-    @touches = event.touches
-    false
+    if (this.dalpha === null) {
+      this.dalpha = event.alpha;
+      this.dbeta = event.beta;
+      this.dgamma = event.gamma;
 
-  ###
-    @private
-  ###
-  touchEnd: (event) ->
-    return if not @active
-    for touch in event.changedTouches
-        @touchCallback?(on, touch, event)
-    @touches = event.touches
-    false
+      if (event.gamma < 0) {
+        this.gammaSign = -1;
+      } else {
+        this.gammaSign = 1;
+      }
+    }
 
-exports = exports ? @
-exports.bkcore ||= {}
-exports.bkcore.controllers ||= {}
-exports.bkcore.controllers.OrientationController = OrientationController
+    this.alpha = event.alpha - this.dalpha;
+    this.beta = event.beta - this.dbeta;
+    this.gamma = this.gammaSign * (event.gamma - this.dgamma);
+  }
+
+  touchStart(event) {
+    if (!this.active) return;
+
+    if (event.changedTouches.length > 0) {
+      for (let touch of event.changedTouches) {
+        this.touchCallback(true, touch, event);
+      }
+    }
+
+    this.touches = event.touches;
+  }
+
+  touchEnd(event) {
+    if (!this.active) return;
+
+    if (event.changedTouches.length > 0) {
+      for (let touch of event.changedTouches) {
+        this.touchCallback(false, touch, event);
+      }
+    }
+
+    this.touches = event.touches;
+  }
+
+  lockOrientation() {
+    if (screen.orientation.lock) {
+      screen.orientation.lock('portrait');
+    } else {
+      console.warn('Screen.orientation.lock not supported');
+    }
+  }
+
+  dispose() {
+    if (this.isCompatible()) {
+      window.removeEventListener('deviceorientation', (e) => this.orientationChange(e), false);
+    }
+
+    this.dom.removeEventListener('touchstart', (e) => this.touchStart(e), false);
+    this.dom.removeEventListener('touchend', (e) => this.touchEnd(e), false);
+
+    this.active = false;
+    this.alpha = 0.0;
+    this.beta = 0.0;
+    this.gamma = 0.0;
+    this.dalpha = null;
+    this.dbeta = null;
+    this.dgamma = null;
+    this.touches = null;
+    this.gammaSign = 1;
+  }
+}
+
+module.exports = OrientationController;
