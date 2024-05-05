@@ -14,14 +14,13 @@
  * change if the page is re-opened later.
  */
 
-/** @type {!LoadTimeData} */
-// eslint-disable-next-line no-var
-var loadTimeData;
+/** @type {LoadTimeData} */
+let loadTimeData;
 
-class LoadTimeData {
+export class LoadTimeData {
   constructor() {
-    /** @type {Object} */
-    this.data_;
+    /** @type {Object<string, *>} */
+    this.data_ = {};
   }
 
   /**
@@ -31,7 +30,7 @@ class LoadTimeData {
    *
    *     var value = loadTimeData.data()['key'];
    *
-   * @param {Object} value The de-serialized page data.
+   * @param {Object<string, *>} value The de-serialized page data.
    */
   set data(value) {
     expect(!this.data_, 'Re-setting data.');
@@ -42,7 +41,7 @@ class LoadTimeData {
    * @param {string} id An ID of a value that might exist.
    * @return {boolean} True if |id| is a key in the dictionary.
    */
-  valueExists(id) {
+  valueExists(id: string): boolean {
     return id in this.data_;
   }
 
@@ -51,7 +50,7 @@ class LoadTimeData {
    * @param {string} id The key that identifies the desired value.
    * @return {*} The corresponding value.
    */
-  getValue(id) {
+  getValue(id: string): any {
     expect(this.data_, 'No data. Did you remember to include strings.js?');
     const value = this.data_[id];
     expect(typeof value !== 'undefined', 'Could not find value for ' + id);
@@ -63,10 +62,10 @@ class LoadTimeData {
    * @param {string} id The key that identifies the desired string.
    * @return {string} The corresponding string value.
    */
-  getString(id) {
+  getString(id: string): string {
     const value = this.getValue(id);
     expectIsType(id, value, 'string');
-    return /** @type {string} */ (value);
+    return value;
   }
 
   /**
@@ -77,13 +76,13 @@ class LoadTimeData {
    *     formatted output.
    * @return {string} The formatted string.
    */
-  getStringF(id, var_args) {
+  getStringF(id: string, ...var_args: (string|number)[]): string {
     const value = this.getString(id);
     if (!value) {
       return '';
     }
 
-    const args = Array.prototype.slice.call(arguments);
+    const args = [...arguments];
     args[0] = value;
     return this.substituteString.apply(this, args);
   }
@@ -98,9 +97,9 @@ class LoadTimeData {
    *     formatted output.
    * @return {string} The formatted string.
    */
-  substituteString(label, var_args) {
+  substituteString(label: string, ...var_args: (string|number)[]): string {
     const varArgs = arguments;
-    return label.replace(/\$(.|$|\n)/g, function(m) {
+    return label.replace(/\$(.|$|\n)/g, (m) => {
       expect(m.match(/\$[$1-9]/), 'Unescaped $ found in localized string.');
       return m === '$$' ? '$' : varArgs[m[1]];
     });
@@ -117,12 +116,12 @@ class LoadTimeData {
    * @return {!Array<!{value: string, arg: (null|string)}>} The formatted
    *     string pieces.
    */
-  getSubstitutedStringPieces(label, var_args) {
+  getSubstitutedStringPieces(label: string, ...var_args: (string|number)[]): {value: string, arg: string|null}[] {
     const varArgs = arguments;
     // Split the string by separately matching all occurrences of $1-9 and of
     // non $1-9 pieces.
     const pieces = (label.match(/(\$[1-9])|(([^$]|\$([^1-9]|$))+)/g) ||
-                    []).map(function(p) {
+                    []).map((p) => {
       // Pieces that are not $1-9 should be returned after replacing $$
       // with $.
       if (!p.match(/^\$[1-9]$/)) {
@@ -144,10 +143,10 @@ class LoadTimeData {
    * @param {string} id The key that identifies the desired boolean.
    * @return {boolean} The corresponding boolean value.
    */
-  getBoolean(id) {
+  getBoolean(id: string): boolean {
     const value = this.getValue(id);
     expectIsType(id, value, 'boolean');
-    return /** @type {boolean} */ (value);
+    return value;
   }
 
   /**
@@ -155,18 +154,18 @@ class LoadTimeData {
    * @param {string} id The key that identifies the desired number.
    * @return {number} The corresponding number value.
    */
-  getInteger(id) {
+  getInteger(id: string): number {
     const value = this.getValue(id);
     expectIsType(id, value, 'number');
     expect(value === Math.floor(value), 'Number isn\'t integer: ' + value);
-    return /** @type {number} */ (value);
+    return value;
   }
 
   /**
    * Override values in loadTimeData with the values found in |replacements|.
-   * @param {Object} replacements The dictionary object of keys to replace.
+   * @param {Object<string, *>} replacements The dictionary object of keys to replace.
    */
-  overrideValues(replacements) {
+  overrideValues(replacements: {[key: string]: any}) {
     expect(
         typeof replacements === 'object',
         'Replacements must be a dictionary object.');
@@ -181,35 +180,35 @@ class LoadTimeData {
   }
 }
 
-  /**
-   * Checks condition, throws error message if expectation fails.
-   * @param {*} condition The condition to check for truthiness.
-   * @param {string} message The message to display if the check fails.
-   */
-  function expect(condition, message) {
-    if (!condition) {
-      throw new Error(
-          'Unexpected condition on ' + document.location.href + ': ' + message);
-    }
+/**
+ * Checks condition, throws error message if expectation fails.
+ * @param {*} condition The condition to check for truthiness.
+ * @param {string} message The message to display if the check fails.
+ */
+function expect(condition: any, message: string) {
+  if (!condition) {
+    throw new Error(
+        'Unexpected condition on ' + document.location.href + ': ' + message);
   }
+}
 
-  /**
-   * Checks that the given value has the given type.
-   * @param {string} id The id of the value (only used for error message).
-   * @param {*} value The value to check the type on.
-   * @param {string} type The type we expect |value| to be.
-   */
-  function expectIsType(id, value, type) {
-    expect(
-        typeof value === type, '[' + value + '] (' + id + ') is not a ' + type);
-  }
+/**
+ * Checks that the given value has the given type.
+ * @param {string} id The id of the value (only used for error message).
+ * @param {*} value The value to check the type on.
+ * @param {string} type The type we expect |value| to be.
+ */
+function expectIsType(id: string, value: any, type: string) {
+  expect(
+      typeof value === type, '[' + value + '] (' + id + ') is not a ' + type);
+}
 
-  expect(!loadTimeData, 'should only include this file once');
-  loadTimeData = new LoadTimeData;
+expect(!loadTimeData, 'should only include this file once');
+loadTimeData = new LoadTimeData;
 
-  // Expose |loadTimeData| directly on |window|, since within a JS module the
-  // scope is local and not all files have been updated to import the exported
-  // |loadTimeData| explicitly.
-  window.loadTimeData = loadTimeData;
+// Expose |loadTimeData| directly on |window|, since within a JS module the
+// scope is local and not all files have been updated to import the exported
+// |loadTimeData| explicitly.
+(window as any).loadTimeData = loadTimeData;
 
-  // console.warn('crbug/1173575, non-JS module files deprecated.');
+// console.warn('crbug/1173575, non-JS module files deprecated.');
