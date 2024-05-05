@@ -1,7 +1,13 @@
 /**
+ * BloomPass class
+ * Adds a bloom effect to a scene
+ *
  * @author alteredq / http://alteredqualia.com/
+ * @param {Number} [strength=1] - The strength of the bloom effect
+ * @param {Number} [kernelSize=25] - The size of the convolution kernel
+ * @param {Number} [sigma=4.0] - The standard deviation of the Gaussian distribution
+ * @param {Number} [resolution=256] - The resolution of the intermediate render targets
  */
-
 THREE.BloomPass = function ( strength, kernelSize, sigma, resolution ) {
 
 	strength = ( strength !== undefined ) ? strength : 1;
@@ -11,14 +17,14 @@ THREE.BloomPass = function ( strength, kernelSize, sigma, resolution ) {
 
 	// render targets
 
-	var pars = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
+	const pars = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat };
 
 	this.renderTargetX = new THREE.WebGLRenderTarget( resolution, resolution, pars );
 	this.renderTargetY = new THREE.WebGLRenderTarget( resolution, resolution, pars );
 
 	// screen material
 
-	var screenShader = THREE.ShaderExtras[ "screen" ];
+	const screenShader = THREE.ShaderExtras[ "screen" ];
 
 	this.screenUniforms = THREE.UniformsUtils.clone( screenShader.uniforms );
 
@@ -36,7 +42,7 @@ THREE.BloomPass = function ( strength, kernelSize, sigma, resolution ) {
 
 	// convolution material
 
-	var convolutionShader = THREE.ShaderExtras[ "convolution" ];
+	const convolutionShader = THREE.ShaderExtras[ "convolution" ];
 
 	this.convolutionUniforms = THREE.UniformsUtils.clone( convolutionShader.uniforms );
 
@@ -94,7 +100,9 @@ THREE.BloomPass.prototype = {
 
 };
 
+/**
+ * Static properties
+ */
 THREE.BloomPass.blurX = new THREE.Vector2( 0.001953125, 0.0 );
 THREE.BloomPass.blurY = new THREE.Vector2( 0.0, 0.001953125 );
-
 
