@@ -1,40 +1,42 @@
-﻿body
-{
-    min-height: 0px;
+body {
+  min-height: 0px;
+  margin: 0; /* Added to reset default browser margin */
 }
 
-#bg, #vignette-left, #vignette-right, #vignette-bottom, #umbrella
-{
-    display: block;
+#bg,
+#vignette-left,
+#vignette-right,
+#vignette-bottom,
+#umbrella {
+  display: block;
 }
 
-#upgrade
-{
-    display: block;
-    width: 623px;
-    margin: 40px auto;
-    padding-top: 40px;
+#upgrade {
+  display: block;
+  width: 623px;
+  margin: 40px auto;
+  padding-top: 40px;
+  text-align: center; /* Added to center the header and button */
 }
 
-#upgrade-header
-{
-    background: url(../images/page/upgrade-js.png);
-    width: 439px;
-    height: 444px;
-    margin: 0px auto;
+#upgrade-header {
+  background: url(../images/page/upgrade-js.png) no-repeat center center;
+  width: 439px;
+  height: 444px;
+  margin: 0 auto;
 }
 
 .video,
 .magasin,
-#game_top ,
+#game_top,
 #upgrade-button {
-    display: none;
+  display: none;
 }
 
 .content_old_ie {
-    display: block;
+  display: block;
 }
 
 #lsWarning {
-    display: none;
+  display: none;
 }
