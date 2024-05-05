@@ -1,10 +1,11 @@
 {
+  // This is a JSON object containing applinks details for deep linking.
   "applinks": {
-    "apps": [],
+    "apps": [], // Empty array of apps.
     "details": [
-        {
-        "appID": "AN88NA66A3.com.playdrift.dominoes",
-        "paths": [ "*" ]
+      {
+        "appID": "AN88NA66A3.com.playdrift.dominoes", // The app ID for the app that handles deep linking.
+        "paths": [ "*" ] // The app will handle all incoming links.
       }
     ]
   }
