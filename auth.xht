@@ -1,34 +1,37 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="referrer" content="no-referrer" />
-		<meta name="viewport" content="width=device-width,initial-scale=1" />
-		<base href="/" target="_blank" />
-		<title>Loading...</title>
-	</head>
-	<body>
-		<div>Loading...</div>
-		<script type="text/javascript">
-// <![CDATA[
-"use strict"; (() => {
-	const win = window.opener;
-	const hash = window.location.hash;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="referrer" content="no-referrer">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Loading...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div>Loading...</div>
+    <script>
+        "use strict";
+        (() => {
+            const win = window.opener;
+            const hash = window.location.hash;
 
-	if (win != null) {
-		win.postMessage(hash);
-		win.focus();
+            if (win) {
+                win.postMessage(hash, "*");
+                win.focus();
 
-		document.body.innerHTML = "You may close this window now.";
-		window.stop();
-		window.close();
-	} else {
-		window.localStorage.setItem("_cre_", hash);
-		window.location.replace("/");
-	}
-})();
-// ]]>
-		</script>
-	</body>
+                document.body.innerHTML = "You may close this window now.";
+                window.stop();
+            } else {
+                localStorage.setItem("_cre_", hash);
+                window.location.replace("/");
+            }
+        })();
+    </script>
+</body>
 </html>
