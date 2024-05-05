@@ -1,24 +1,40 @@
 @font-face {
-  font-family: 'Ubuntu Mono';
+  --font-name: 'Ubuntu Mono';
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+
+  font-family: var(--font-name);
   font-style: normal;
-  font-weight: 700;
-  src: local('Ubuntu Mono Bold'), local('UbuntuMono-Bold'), url(bold.woff) format('woff');
+  font-weight: var(--font-weight-regular);
+  src: local(var(--font-name) Regular), local(var(--font-name)-Regular), url(normal.woff) format('woff');
 }
+
 @font-face {
-  font-family: 'Ubuntu Mono';
+  --font-name: 'Ubuntu Mono';
+  --font-weight: var(--font-weight-bold);
+
+  font-family: var(--font-name);
+  font-style: italic;
+  font-weight: var(--font-weight);
+  src: local(var(--font-name) Bold Italic), local(var(--font-name)-BoldItalic), url(bolditalic.woff) format('woff');
+}
+
+@font-face {
+  --font-name: 'Ubuntu Mono';
+  --font-weight: var(--font-weight-regular);
+
+  font-family: var(--font-name);
+  font-style: italic;
+  font-weight: var(--font-weight);
+  src: local(var(--font-name) Italic), local(var(--font-name)-Italic), url(italic.woff) format('woff');
+}
+
+@font-face {
+  --font-name: 'Ubuntu Mono';
+  --font-weight: var(--font-weight-bold);
+
+  font-family: var(--font-name);
   font-style: normal;
-  font-weight: 400;
-  src: local('Ubuntu Mono'), local('UbuntuMono-Regular'), url(normal.woff) format('woff');
-}
-@font-face {
-  font-family: 'Ubuntu Mono';
-  font-style: italic;
-  font-weight: 700;
-  src: local('Ubuntu Mono Bold Italic'), local('UbuntuMono-BoldItalic'), url(bolditalic.woff) format('woff');
-}
-@font-face {
-  font-family: 'Ubuntu Mono';
-  font-style: italic;
-  font-weight: 400;
-  src: local('Ubuntu Mono Italic'), local('UbuntuMono-Italic'), url(italic.woff) format('woff');
+  font-weight: var(--font-weight);
+  src: local(var(--font-name) Bold), local(var(--font-name)-Bold), url(bold.woff) format('woff');
 }
