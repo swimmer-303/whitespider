@@ -1,4 +1,20 @@
-CACHE MANIFEST
+# Cache manifest file for offline support
 
+# The cache section lists the files that will be available offline.
+CACHE:
+# Include all files in the same directory as this manifest file
+manifest.appcache
+index.html
+style.css
+script.js
+image.png
+
+# The network section lists the requests that should always go through the network,
+# even if there is a cached version available.
 NETWORK:
 *
+
+# The fallback section lists fallback resources to use when the primary resources aren't available.
+FALLBACK:
+# If a request for any other file fails, serve the offline.html file instead.
+/ /offline.html
