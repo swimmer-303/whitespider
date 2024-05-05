@@ -1,24 +1,14 @@
-/**
- * @author alteredq / http://alteredqualia.com/
- *
- * Film grain & scanlines shader
- *
- * - ported from HLSL to WebGL / GLSL
- * http://www.truevision3d.com/forums/showcase/staticnoise_colorblackwhite_scanline_shaders-t18698.0.html
- *
- * Screen Space Static Postprocessor
- *
- * Produces an analogue noise overlay similar to a film grain / TV static
- *
- * Original implementation and noise algorithm
- * Pat 'Hawthorne' Shearon
- *
- * Optimized scanlines + noise version with intensity scaling
- * Georg 'Leviathan' Steinrohder
- *
- * This version is provided under a Creative Commons Attribution 3.0 License
- * http://creativecommons.org/licenses/by/3.0/
- */
+// Film grain & scanlines shader
+// - ported from HLSL to WebGL / GLSL
+// - Original implementation and noise algorithm
+//   Pat 'Hawthorne' Shearon
+// - Optimized scanlines + noise version with intensity scaling
+//   Georg 'Leviathan' Steinrohder
+//
+// This version is provided under a Creative Commons Attribution 3.0 License
+// http://creativecommons.org/licenses/by/3.0/
+
+const PI = 3.14159265359;
 
 THREE.FilmShader = {
 
@@ -48,12 +38,15 @@ THREE.FilmShader = {
 
 	fragmentShader: [
 
-		"#include <common>",
+		"#version 300 es",
+		"precision highp float;",
+
+		"#define PI 3.14159265359",
 
 		// control parameter
 		"uniform float time;",
 
-		"uniform bool grayscale;",
+		"const bool grayscale = true;",
 
 		// noise effect intensity value (0 = no effect, 1 = full effect)
 		"uniform float nIntensity;",
@@ -71,33 +64,33 @@ THREE.FilmShader = {
 		"void main() {",
 
 		// sample the source
-		"	vec4 cTextureScreen = texture2D( tDiffuse, vUv );",
+		"	vec4 cTextureScreen = texture( tDiffuse, vUv );",
 
 		// make some noise
-		"	float dx = rand( vUv + time );",
+		"	float dx = fract(sin(dot(vec2(1.0), vUv * 12.9898 + vec2(time))) * 43758.5453);",
 
 		// add noise
 		"	vec3 cResult = cTextureScreen.rgb + cTextureScreen.rgb * clamp( 0.1 + dx, 0.0, 1.0 );",
 
 		// get us a sine and cosine
-		"	vec2 sc = vec2( sin( vUv.y * sCount ), cos( vUv.y * sCount ) );",
+		"	vec2 sc = vec2( sin(vUv.y * sCount), cos(vUv.y * sCount) );",
 
 		// add scanlines
-		"	cResult += cTextureScreen.rgb * vec3( sc.x, sc.y, sc.x ) * sIntensity;",
+		"	cResult += cTextureScreen.rgb * vec3(sc.x, sc.y, sc.x) * sIntensity;",
 
 		// interpolate between source and result by intensity
-		"	cResult = cTextureScreen.rgb + clamp( nIntensity, 0.0,1.0 ) * ( cResult - cTextureScreen.rgb );",
+		"	cResult = cTextureScreen.rgb + clamp(nIntensity, 0.0, 1.0) * (cResult - cTextureScreen.rgb);",
 
 		// convert to grayscale if desired
-		"	if( grayscale ) {",
+		"	if (grayscale) {",
 
-		"		cResult = vec3( cResult.r * 0.3 + cResult.g * 0.59 + cResult.b * 0.11 );",
+		"		cResult = vec3(cResult.r * 0.3 + cResult.g * 0.59 + cResult.b * 0.11);",
 
 		"	}",
 
-		"	gl_FragColor =  vec4( cResult, cTextureScreen.a );",
+		"	gl_FragColor = vec4(cResult, cTextureScreen.a);",
 
-		"}"
+		"}",
 
 	].join( "\n" )
 
