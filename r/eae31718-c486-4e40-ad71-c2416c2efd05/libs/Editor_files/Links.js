@@ -1,48 +1,70 @@
+/**
+ * @class pgli.diagram.Links
+ * @extends gamecore.Base
+ */
 var pgli = pgli || {};
 pgli.diagram = pgli.diagram || {};
 
 pgli.diagram.Links = gamecore.Base.extend('Links',
-{ // static
+/** @lends pgli.diagram.Links.prototype */
+{
 	bezierOffset: 50
 },
-{ // instance
+/** @lends pgli.diagram.Links.prototype */
+{
+	/**
+	 * The diagram that this Links object belongs to.
+	 * @type {pgli.diagram.Diagram}
+	 */
 	diagram: null,
 
+	/**
+	 * The shape representing the links on the KineticJS layer.
+	 * @type {Kinetic.Shape}
+	 */
 	shape: null,
 
+	/**
+	 * Initializes a new instance of the pgli.diagram.Links class.
+	 * @param {pgli.diagram.Diagram} diagram - The diagram that this Links object belongs to.
+	 */
 	init: function(diagram)
 	{
-		var static = pgli.diagram.Links;
-		var self = this;
+		const static = pgli.diagram.Links;
+		const self = this;
 
 		this.diagram = diagram;
 
 		this.shape = new Kinetic.Shape({
 			drawFunc: function(ctx){
 				ctx.beginPath();
-				
-				for(var i = 0, len = self.diagram.nodes.length; i < len; i++)
-				{
-					var node = self.diagram.nodes[i];
 
-					if(! ("layers" in node.module)) continue;
+				diagram.nodes.forEach(function(node) {
+					if (!node.module || !node.module.layers || !Array.isArray(node.module.layers)) {
+						return;
+					}
 
-					for(var j = 0, _len = node.module.layers.length; j < _len; j++)
-					{
-						if(! ("use" in node.module.layers[j])) continue;
+					node.module.layers.forEach(function(layer) {
+						if (!layer.use || typeof layer.use !== 'string') {
+							return;
+						}
 
-						var start = node.getLayerSlot(j);
-						var tNode = self.diagram.getNode(node.module.layers[j].use);
-						if(!tNode) continue;
-						var end = tNode.getSlot();
+						const start = node.getLayerSlot(layer.index);
+						const tNode = diagram.getNode(layer.use);
+
+						if (!tNode) {
+							return;
+						}
+
+						const end = tNode.getSlot();
 
 						ctx.moveTo(start[0], start[1]);
 						ctx.bezierCurveTo(
 							start[0]+static.bezierOffset, start[1],
 							end[0]-static.bezierOffset, end[1],
 							end[0], end[1]);
-					}
-				}
+					});
+				});
 
 				this.stroke(ctx);
 			},
