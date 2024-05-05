@@ -1,12 +1,12 @@
 /**
-	Base class for all drawable objects, makes ordering automatic.
-	Code by Rob Kleffner, 2011
-*/
+ * Base class for all drawable objects, makes ordering automatic.
+ * Code by Rob Kleffner, 2011.
+ */
 
-Enjine.Drawable = function() {
+class Drawable {
+  constructor() {
     this.ZOrder = 0;
-};
+  }
 
-Enjine.Drawable.prototype = {
-    Draw: function(context) { }
-};
+  draw(context) {}
+}
