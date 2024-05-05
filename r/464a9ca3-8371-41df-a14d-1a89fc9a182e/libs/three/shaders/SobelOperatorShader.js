@@ -1,10 +1,8 @@
 /**
- * @author Mugen87 / https://github.com/Mugen87
+ * Sobel Edge Detection Shader
  *
- * Sobel Edge Detection (see https://youtu.be/uihBwtPIBxM)
- *
- * As mentioned in the video the Sobel operator expects a grayscale image as input.
- *
+ * This shader performs edge detection on a grayscale texture using the Sobel operator.
+ * It outputs the gradient magnitude of each pixel as a color value.
  */
 
 THREE.SobelOperatorShader = {
@@ -32,18 +30,18 @@ THREE.SobelOperatorShader = {
 
 	fragmentShader: [
 
+		"precision highp float;",
+
 		"uniform sampler2D tDiffuse;",
 		"uniform vec2 resolution;",
 		"varying vec2 vUv;",
 
+		"const mat3 Gx = mat3( -1, -2, -1, 0, 0, 0, 1, 2, 1 );",
+		"const mat3 Gy = mat3( -1, 0, 1, -2, 0, 2, -1, 0, 1 );",
+
 		"void main() {",
 
 		"	vec2 texel = vec2( 1.0 / resolution.x, 1.0 / resolution.y );",
-
-		// kernel definition (in glsl matrices are filled in column-major order)
-
-		"	const mat3 Gx = mat3( -1, -2, -1, 0, 0, 0, 1, 2, 1 );", // x direction kernel
-		"	const mat3 Gy = mat3( -1, 0, 1, -2, 0, 2, -1, 0, 1 );", // y direction kernel
 
 		// fetch the 3x3 neighbourhood of a fragment
 
@@ -81,10 +79,15 @@ THREE.SobelOperatorShader = {
 
 		"	float G = sqrt( ( valueGx * valueGx ) + ( valueGy * valueGy ) );",
 
-		"	gl_FragColor = vec4( vec3( G ), 1 );",
+		// clamp gradient value to [0,1] range
+
+		"	G = clamp( G, 0.0, 1.0 );",
+
+		"	gl_FragColor = vec4( vec3( G ), 1.0 );",
 
 		"}"
 
 	].join( "\n" )
 
 };
+
