@@ -4,9 +4,9 @@
 
 THREE.SavePass = function ( renderTarget ) {
 
-	var shader = THREE.ShaderExtras[ "screen" ];
-
 	this.textureID = "tDiffuse";
+
+	var shader = THREE.ShaderExtras[ "screen" ];
 
 	this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
 
@@ -23,30 +23,7 @@ THREE.SavePass = function ( renderTarget ) {
 	if ( this.renderTarget === undefined ) {
 
 		this.renderTargetParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: false };
-		this.renderTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, this.renderTargetParameters );
-
-	}
-
-	this.enabled = true;
-	this.needsSwap = false;
-	this.clear = false;
-
-};
-
-THREE.SavePass.prototype = {
-
-	render: function ( renderer, writeBuffer, readBuffer, delta ) {
-
-		if ( this.uniforms[ this.textureID ] ) {
-
-			this.uniforms[ this.textureID ].texture = readBuffer;
-
-		}
-
-		THREE.EffectComposer.quad.material = this.material;
-
-		renderer.render( THREE.EffectComposer.scene, THREE.EffectComposer.camera, this.renderTarget, this.clear );
-
-	}
-
-};
+		this.renderTarget = new THREE.WebGLRenderTarget(
+			// Use the width and height of the canvas, not the window
+			renderer.domElement.width,
+		
