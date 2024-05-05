@@ -2,65 +2,61 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.ShaderPass = function ( shader, textureID ) {
+THREE.ShaderPass = function (shader, textureID) {
+    THREE.Pass.call(this);
 
-	THREE.Pass.call( this );
+    this.textureID = textureID !== undefined ? textureID : "tDiffuse";
 
-	this.textureID = ( textureID !== undefined ) ? textureID : "tDiffuse";
+    if (shader instanceof THREE.ShaderMaterial) {
+        this.uniforms = shader.uniforms;
+        this.material = shader;
+    } else if (shader) {
+        this.uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+        this.material = new THREE.ShaderMaterial({
+            defines: {...shader.defines},
+            uniforms: this.uniforms,
+            vertexShader: shader.vertexShader,
+            fragmentShader: shader.fragmentShader
+        });
+    } else {
+        console.error("Shader is not defined.");
+        return;
+    }
 
-	if ( shader instanceof THREE.ShaderMaterial ) {
-
-		this.uniforms = shader.uniforms;
-
-		this.material = shader;
-
-	} else if ( shader ) {
-
-		this.uniforms = THREE.UniformsUtils.clone( shader.uniforms );
-
-		this.material = new THREE.ShaderMaterial( {
-
-			defines: Object.assign( {}, shader.defines ),
-			uniforms: this.uniforms,
-			vertexShader: shader.vertexShader,
-			fragmentShader: shader.fragmentShader
-
-		} );
-
-	}
-
-	this.fsQuad = new THREE.Pass.FullScreenQuad( this.material );
-
+    this.fsQuad = new THREE.Pass.FullScreenQuad(this.material);
 };
 
-THREE.ShaderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
+THREE.ShaderPass.prototype = Object.assign(Object.create(THREE.Pass.prototype), {
+    constructor: THREE.ShaderPass,
 
-	constructor: THREE.ShaderPass,
+    renderToScreen: {
+        value: false
+    },
 
-	render: function ( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+    clear: {
+        value: true
+    },
 
-		if ( this.uniforms[ this.textureID ] ) {
+    render: function (renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
+        if (!this.uniforms[this.textureID]) {
+            console.error("textureID not found in uniforms.");
+            return;
+        }
 
-			this.uniforms[ this.textureID ].value = readBuffer.texture;
+        this.uniforms[this.textureID].value = readBuffer.texture;
+        this.fsQuad.material = this.material;
 
-		}
+        this.renderFullScreenQuad(renderer, writeBuffer, this.fsQuad, deltaTime, maskActive);
+    },
 
-		this.fsQuad.material = this.material;
-
-		if ( this.renderToScreen ) {
-
-			renderer.setRenderTarget( null );
-			this.fsQuad.render( renderer );
-
-		} else {
-
-			renderer.setRenderTarget( writeBuffer );
-			// TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
-			if ( this.clear ) renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
-			this.fsQuad.render( renderer );
-
-		}
-
-	}
-
-} );
+    renderFullScreenQuad: function (renderer, writeBuffer, fsQuad, deltaTime, maskActive) {
+        if (this.renderToScreen) {
+            renderer.setRenderTarget(null);
+            fsQuad.render(renderer);
+        } else {
+            renderer.setRenderTarget(writeBuffer);
+            if (this.clear) renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
+            fsQuad.render(renderer);
+        }
+    }
+});
