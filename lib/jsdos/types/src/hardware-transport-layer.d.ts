@@ -1,4 +1,5 @@
 import { TransportLayer } from "emulators/dist/types/protocol/protocol";
+
 export interface Hardware {
     readConfig(): string;
     sendMessage(payload: string): void;
@@ -9,10 +10,26 @@ export interface Hardware {
     createFile(path: string): string;
     appendFile(blob: string): string;
     closeFile(): string;
+    readFile(path: string): string;
 }
+
 export declare class HardwareTransportLayerFactory {
-    private serverMessageHandler;
-    constructor();
-    createTransportLayer(realtime: Hardware): TransportLayer;
+    protected static instance: HardwareTransportLayerFactory;
+    protected serverMessageHandler: any;
+
+    private constructor() {}
+
+    static getInstance(): HardwareTransportLayerFactory {
+        if (!HardwareTransportLayerFactory.instance) {
+            HardwareTransportLayerFactory.instance = new HardwareTransportLayerFactory();
+        }
+
+        return HardwareTransportLayerFactory.instance;
+    }
+
+    createTransportLayer(realtime: Hardware): TransportLayer {
+        // implementation here
+    }
 }
-export declare const hardwareTransportLayerFactory: HardwareTransportLayerFactory;
+
+export const hardwareTransportLayerFactory = HardwareTransportLayerFactory.getInstance();
