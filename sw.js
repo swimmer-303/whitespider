@@ -1,83 +1,37 @@
 /// <reference lib="WebWorker" />
-"use strict"; ((_) => {
-	/**
-	 * @type {ServiceWorkerGlobalScope}
-	 */
-	const self = _;
-	const origin = self.location.origin;
-	const cacheName = "167e1f07-b59a-4742-bb45-15cf3caabcce";
 
-	/**
-	 * @param {FetchEvent} e 
-	 * @returns {Promise<Response>}
-	 */
-	async function handleFetch(e) {
-		const request = e.request;
-		switch (request.method) {
-			case "GET":
-			case "HEAD":
-				break;
-			default:
-				return await fetch(request);
-		}
+interface ExtendableEvent {
+  waitUntil(promise: Promise<any>): void;
+}
 
-		const url = new URL(request.url);
-		switch (url.protocol) {
-			case "http:":
-			case "https:":
-				break;
-			default:
-				return await fetch(request);
-		}
+interface FetchEvent extends ExtendableEvent {
+  request: Request;
+  respondWith(response: Response): void;
+  preloadResponse: Promise<Response> | null;
+}
 
-		if (url.origin === origin && url.pathname === "/manifest.json") {
-			return await fetch(url, {
-				body: null,
-				mode: "same-origin",
-				cache: "no-cache",
-				method: request.method,
-				headers: request.headers
-			});
-		}
+interface ExtendableMessageEvent extends ExtendableEvent {
+  data: any;
+}
 
-		const res = await caches.match(request, { cacheName }) || await e.preloadResponse || await fetch(request);
-		if (origin !== "http://localhost:8000") {
-			try {
-				await (await caches.open(cacheName)).put(request, res.clone());
-			} catch (err) {
-				// ignore
-			}
-		}
-		return res;
-	}
+interface ServiceWorkerGlobalScope {
+  clients: any;
+  location: Location;
+  caches: any;
+  addEventListener<K extends keyof ServiceWorkerGlobalScopeEventMap>(
+    type: K,
+    listener: (this: ServiceWorker, ev: ServiceWorkerGlobalScopeEventMap[K]) => any,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+}
 
-	/**
-	 * @param {ExtendableMessageEvent} e 
-	 */
-	async function handleMessage(e) {
-	}
+interface ServiceWorkerGlobalScopeEventMap {
+  fetch: FetchEvent;
+  message: ExtendableMessageEvent;
+  install: ExtendableEvent;
+  activate: ExtendableEvent;
+}
 
-	/**
-	 * @param {ExtendableEvent} e 
-	 */
-	async function handleInstall(e) {
-		const cache = await caches.open(cacheName);
-		await cache.addAll(["manifest.json", "sw.js",]);
-	}
-
-	/**
-	 * @param {ExtendableEvent} e 
-	 */
-	async function handleActivate(e) {
-		await self.clients.claim();
-		for (const k of await caches.keys()) {
-			if (k != cacheName)
-				await caches.delete(k);
-		}
-	}
-
-	self.addEventListener("fetch", (e) => e.respondWith(handleFetch(e)), { passive: true });
-	self.addEventListener("message", (e) => e.waitUntil(handleMessage(e)), { passive: true });
-	self.addEventListener("install", (e) => e.waitUntil(handleInstall(e)), { passive: true });
-	self.addEventListener("activate", (e) => e.waitUntil(handleActivate(e)), { passive: true });
-})(self);
+const self = <ServiceWorkerGlobalScope>_;
+const origin = self.location.origin;
+const cacheName = "167e1f07-b59a-474
