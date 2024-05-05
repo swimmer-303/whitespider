@@ -1,33 +1,33 @@
 /**
-	Represents a very basic game timer.
-	Code by Rob Kleffner, 2011
-*/
+ * Represents a very basic game timer.
+ * Code by Rob Kleffner, 2011, with improvements by AI.
+ */
 
-Enjine.GameTimer = function() {
-    this.FramesPerSecond = 1000 / 30;
-	this.LastTime = 0;
-    this.IntervalFunc = null;
-    this.UpdateObject = null;
+Enjine.GameTimer = function () {
+    this.framesPerSecond = 1000 / 30;
+    this.lastTime = 0;
+    this.intervalFunc = null;
+    this.updateObject = null;
+    this.deltaThreshold = 0.1; // added to avoid huge delta values when the game is paused for a long time
 };
 
 Enjine.GameTimer.prototype = {
-    Start: function() {
-        this.LastTime = new Date().getTime();
-        var self = this;
-        this.IntervalFunc = setInterval(function() { self.Tick() }, this.FramesPerSecond);
+    start: function () {
+        this.lastTime = new Date().getTime();
+        this.intervalFunc = setInterval(this.tick.bind(this), this.framesPerSecond);
     },
-    
-    Tick: function() {
-        if (this.UpdateObject != null) {
-            var newTime = new Date().getTime();
-    		var delta = (newTime - this.LastTime) / 1000;
-    		this.LastTime = newTime;
-            
-            this.UpdateObject.Update(delta);
+
+    tick: function () {
+        if (this.updateObject != null) {
+            const newTime = new Date().getTime();
+            const delta = Math.min(this.deltaThreshold, (newTime - this.lastTime) / 1000); // limit delta to avoid huge values
+            this.lastTime = newTime;
+
+            this.updateObject.update(delta);
         }
     },
-    
-    Stop: function() {
-        clearInterval(this.IntervalFunc);
+
+    stop: function () {
+        clearInterval(this.intervalFunc);
     }
 };
