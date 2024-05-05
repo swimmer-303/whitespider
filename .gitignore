@@ -1,3 +1,31 @@
-/local
-/node_modules
-/package-lock.json
+# File and directory structure for a Node.js project
+# 
+# - /local: Local configuration files and data
+# - /node_modules: Third-party libraries and modules
+# - /package-lock.json: Versioned dependencies for the project
+
+# Constants
+LOCAL_DIR= "/local"
+NODE_MODULES_DIR= "/node_modules"
+PACKAGE_LOCK_JSON= "/package-lock.json"
+
+# Check if the local directory exists
+if [ -d $LOCAL_DIR ]; then
+  echo "Local directory exists"
+else
+  echo "Local directory does not exist"
+fi
+
+# Check if the node_modules directory exists
+if [ -d $NODE_MODULES_DIR ]; then
+  echo "Node modules directory exists"
+else
+  echo "Node modules directory does not exist"
+fi
+
+# Check if the package-lock.json file exists
+if [ -f $PACKAGE_LOCK_JSON ]; then
+  echo "Package lock file exists"
+else
+  echo "Package lock file does not exist"
+fi
